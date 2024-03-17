@@ -20,6 +20,11 @@ Vector::~Vector() {
 
 }
 
+Vector Vector::operator-() const
+{
+    return { -this->x, -this->y, -this->z };
+}
+
 Vector Vector::operator+(const Vector& v) const {
     return { x + v.x, y + v.y, z + v.z };
 }
@@ -36,15 +41,22 @@ Vector Vector::operator/(float f) const {
     return { x / f, y / f, z / f };
 }
 
+float Vector::getAngle(const Vector& vector) 
+{
+    return acos(dotProduct(vector) / (this->GetLength() * vector.GetLength())); 
+}
+
 float Vector::GetLength() const {
     return (float)sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
 }
 
-void Vector::Normalize() {
+Vector Vector::Normalize() {
     float len = GetLength();
 
-    if (len != 0)
-        this->operator/(len);
+    if (len < 0 )
+        return Vector(0, 0, 0);
+
+    return *this/len;
 }
 
 float Vector::dotProduct(Vector v) {
@@ -60,4 +72,11 @@ Vector Vector::cross(Vector v) {
     return Vector(y * v.z - z * v.y,
         z * v.x - x * v.z,
         x * v.y - y * v.x);
+}
+
+
+std::ostream& operator<<(std::ostream& Os, const Vector& vector3)
+{
+    Os << "[" << vector3.x << "," << vector3.y << "," << vector3.z << "]";
+    return Os;
 }

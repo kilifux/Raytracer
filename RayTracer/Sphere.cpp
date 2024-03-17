@@ -1,6 +1,8 @@
 #include <cmath>
 #include "Sphere.h"
 
+#include <iostream>
+
 bool Sphere::Hit(Ray ray, float t_min, float t_max) const {
 
     Vector oc = ray.Origin - Center;
@@ -14,6 +16,7 @@ bool Sphere::Hit(Ray ray, float t_min, float t_max) const {
     if (discriminant > 0)
     {
         float temp = (-b - std::sqrtf(discriminant)) / a;
+        std::cout << ray.pointAtParameter(temp) << std::endl;
 
         if (temp < t_max && temp > t_min)
             return true;
@@ -23,6 +26,6 @@ bool Sphere::Hit(Ray ray, float t_min, float t_max) const {
         if (temp < t_max && temp > t_min)
             return true;
     }
-
+    std::cout << "Nie ma przeciecia!" << std::endl;
     return false;
 }

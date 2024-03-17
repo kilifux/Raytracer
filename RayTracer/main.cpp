@@ -10,8 +10,8 @@ Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane);
 
 int main(int argv, char** args) {
 
-    auto aspect_ratio = 16.0 / 9.0;
-    int image_width = 1000;
+    /*auto aspect_ratio = 16.0 / 9.0;
+    int image_width = 100;
 
     // Calculate the image height, and ensure that it's at least 1.
     int image_height = static_cast<int>(image_width / aspect_ratio);
@@ -60,8 +60,58 @@ int main(int argv, char** args) {
     }
 
 
-    MyFile.close();
+    MyFile.close(); */
 
+
+    //Zadanie 1
+
+
+    Vector first(0, 3, 0);
+    Vector second(5, 5, 0);
+    Vector result = second + first;
+
+    std::cout << "2. " << result << std::endl;
+
+    std::cout << "3. " << second.getAngle(first) << std::endl;
+
+    Vector one(4, 5, 1);
+    Vector two(4, 1, 3);
+    Vector result2 = one.cross(two);
+
+    std::cout << "4. " << result2 << std::endl;
+
+    std::cout << "5. " << result2.Normalize() << std::endl;
+
+    Vector RayOrigin(0, 0, -20);
+    Sphere sphere(Vector(0, 0, 0), 10);
+    Ray ray(RayOrigin, -RayOrigin.Normalize());
+    Ray ray2(RayOrigin, Vector(0, 1, 0));
+
+    std::cout << "10 and 11. R1 ";
+    sphere.Hit(ray, 0, 20);
+    std::cout << "10. R2 ";
+    sphere.Hit(ray2, 0, 20);
+
+    std::cout << "12. R3 (should be [0, 10, 0]). Result: ";
+    Ray ray3(Vector(0, 0, -20), Vector(0, 0, 1));
+    sphere.Hit(ray3, 0, 200);
+
+    std::cout << "14. Plane: ";
+    Plane plane(Vector(0, 0, 0), Vector(0, 1, 1).Normalize());
+    plane.Intersects(ray2, 50);
+
+    std::cout << "\nTriangles" << std::endl;
+
+    Triangle triangle(Vector(0, 0, 0), Vector(1, 0, 0), Vector(0, 1, 0));
+    Ray R4 = Ray::GetTwoPointsRay(Vector(-1, 0.5, 0), Vector(1, 0.5, 0));
+    Vector intersectionPoint;
+    std::cout << triangle.IntersectTriangle(R4, Vector(0, 0, 0), Vector(1, 0, 0), Vector(0, 1, 0), intersectionPoint) << std::endl;
+
+    Ray R5 = Ray::GetTwoPointsRay(Vector(2, -1, 0), Vector(2, 2, 0));
+    std::cout << triangle.IntersectTriangle(R5, Vector(0, 0, 0), Vector(1, 0, 0), Vector(0, 1, 0), intersectionPoint) << std::endl;
+
+    Ray R6 = Ray::GetTwoPointsRay(Vector(0, 0, -1), Vector(0, 0, 1));
+    std::cout << triangle.IntersectTriangle(R6, Vector(0, 0, 0), Vector(1, 0, 0), Vector(0, 1, 0), intersectionPoint) << std::endl;
     return 0;
 }
 

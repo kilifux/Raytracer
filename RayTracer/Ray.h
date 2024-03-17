@@ -11,5 +11,7 @@ public:
     Ray();
     Ray(const Vector& origin, const Vector& direction) : Origin(origin), Direction(direction) { }
     Vector pointAtParameter(float t) const { return Origin + Direction * t; }
+
+    static Ray GetTwoPointsRay(const Vector& A, const Vector& B);
 };
 
