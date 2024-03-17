@@ -20,34 +20,40 @@ Triangle::Triangle(const Vector& vertex1, const Vector& vertex2, const Vector& v
     normals[2] = normal3;
 }
 
-bool Triangle::IntersectTriangle(const Ray& ray, const Vector& A, const Vector& B, const Vector& C,
-    Vector& intersectionPoint) {
+bool Triangle::IntersectTriangle(Ray& ray, Vector& intersectionPoint) {
 
-    Vector AB = B - A;
-    Vector AC = C - A;
-    Vector normal = AB.cross(AC);
+    const float EPSILON = 0.0000001;
 
-    float dot = normal.dotProduct(ray.Direction);
-    if (fabsf(dot) < 0.00000001)
+    Vector AB = vertices[1] - vertices[0];
+    Vector AC = vertices[2] - vertices[0];
+
+    Vector pvec = ray.Direction.cross(AC);
+    float dot = AB.dotProduct(pvec);
+
+    if (fabs(dot) < EPSILON) {
+        //std::cout << "parallel" << std::endl;
         return false;
+    }
+    float invDot = 1.0f / dot;
 
-    float t = normal.dotProduct(A - ray.Origin) / dot;
+    Vector tvec = ray.Origin - vertices[0];
+    float u = invDot * tvec.dotProduct(pvec);
 
-    if (t < 0.0f)
+    if (u < 0.0 || u > 1.0) {
         return false;
+    }
+    Vector qvec = tvec.cross(AB);
+    float v = invDot * ray.Direction.dotProduct(qvec);
 
-    intersectionPoint = ray.Origin + ray.Direction * t;
+    if (v < 0.0 || u + v > 1.0) {
+        return false;
+    }
 
-    Vector AP = intersectionPoint - A;
-    Vector BP = intersectionPoint - B;
-    Vector CP = intersectionPoint - C;
+    float t = invDot * AC.dotProduct(qvec);
 
-    Vector v1 = AB.cross(AP);
-    Vector v2 = AC.cross(BP);
-    Vector v3 = (B - C).cross(CP);
-
-    if (v1.dotProduct(normal) >= 0.0f && v2.dotProduct(normal) >= 0.0f && v3.dotProduct(normal) >= 0.0f)
+    if (t > EPSILON)
     {
+        intersectionPoint = ray.Origin + ray.Direction * t;
         return true;
     }
 

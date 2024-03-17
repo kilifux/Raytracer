@@ -104,14 +104,17 @@ int main(int argv, char** args) {
 
     Triangle triangle(Vector(0, 0, 0), Vector(1, 0, 0), Vector(0, 1, 0));
     Ray R4 = Ray::GetTwoPointsRay(Vector(-1, 0.5, 0), Vector(1, 0.5, 0));
+
     Vector intersectionPoint;
-    std::cout << triangle.IntersectTriangle(R4, Vector(0, 0, 0), Vector(1, 0, 0), Vector(0, 1, 0), intersectionPoint) << std::endl;
+
+    std::cout << triangle.IntersectTriangle(R4, intersectionPoint) << std::endl;
 
     Ray R5 = Ray::GetTwoPointsRay(Vector(2, -1, 0), Vector(2, 2, 0));
-    std::cout << triangle.IntersectTriangle(R5, Vector(0, 0, 0), Vector(1, 0, 0), Vector(0, 1, 0), intersectionPoint) << std::endl;
+    std::cout << triangle.IntersectTriangle(R5, intersectionPoint) << std::endl;
 
     Ray R6 = Ray::GetTwoPointsRay(Vector(0, 0, -1), Vector(0, 0, 1));
-    std::cout << triangle.IntersectTriangle(R6, Vector(0, 0, 0), Vector(1, 0, 0), Vector(0, 1, 0), intersectionPoint) << std::endl;
+    std::cout << triangle.IntersectTriangle(R6, intersectionPoint) << std::endl;
+    std::cout << intersectionPoint << std::endl;
     return 0;
 }
 
@@ -129,7 +132,7 @@ Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane) {
         return Vector(1.0, 0.5, 1.0);
 
 
-    if (triangle.IntersectTriangle(r, triangle.vertices[0], triangle.vertices[1], triangle.vertices[2], IntersectVector))
+    if (triangle.IntersectTriangle(r, IntersectVector))
         return Vector(1.0f, 1.0f, 0.5f);
 
 
