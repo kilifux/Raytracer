@@ -20,7 +20,7 @@ Triangle::Triangle(const Vector& vertex1, const Vector& vertex2, const Vector& v
     normals[2] = normal3;
 }
 
-bool Triangle::IntersectTriangle(Ray& ray, Vector& intersectionPoint) {
+bool Triangle::Intersect(Ray& ray, Vector& intersectionPoint) {
 
     const float EPSILON = 0.0000001;
 
@@ -31,7 +31,6 @@ bool Triangle::IntersectTriangle(Ray& ray, Vector& intersectionPoint) {
     float dot = AB.dotProduct(pvec);
 
     if (fabs(dot) < EPSILON) {
-        //std::cout << "parallel" << std::endl;
         return false;
     }
     float invDot = 1.0f / dot;

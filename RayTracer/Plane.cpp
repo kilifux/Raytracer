@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-bool Plane::Intersects(const Ray& ray, float range) {
+bool Plane::Intersect(const Ray& ray, float range) {
     float ndotD = normal.dotProduct(ray.Direction);
     if (ndotD == 0)
         return false;

@@ -11,6 +11,6 @@ public:
     Plane();
     Plane(const Vector& center, const Vector& normal) : center(center), normal(normal) {}
 
-    bool Intersects(const Ray& ray, float range);
+    bool Intersect(const Ray& ray, float range);
 
 };

@@ -88,17 +88,17 @@ int main(int argv, char** args) {
     Ray ray2(RayOrigin, Vector(0, 1, 0));
 
     std::cout << "10 and 11. R1 ";
-    sphere.Hit(ray, 0, 20);
+    sphere.Intersect(ray, 0, 20);
     std::cout << "10. R2 ";
-    sphere.Hit(ray2, 0, 20);
+    sphere.Intersect(ray2, 0, 20);
 
-    std::cout << "12. R3 (should be [0, 10, 0]). Result: ";
+    std::cout << "12. R3 ";
     Ray ray3(Vector(0, 0, -20), Vector(0, 0, 1));
-    sphere.Hit(ray3, 0, 200);
+    sphere.Intersect(ray3, 0, 200);
 
     std::cout << "14. Plane: ";
     Plane plane(Vector(0, 0, 0), Vector(0, 1, 1).Normalize());
-    plane.Intersects(ray2, 50);
+    plane.Intersect(ray2, 50);
 
     std::cout << "\nTriangles" << std::endl;
 
@@ -107,13 +107,13 @@ int main(int argv, char** args) {
 
     Vector intersectionPoint;
 
-    std::cout << triangle.IntersectTriangle(R4, intersectionPoint) << std::endl;
+    std::cout << triangle.Intersect(R4, intersectionPoint) << std::endl;
 
     Ray R5 = Ray::GetTwoPointsRay(Vector(2, -1, 0), Vector(2, 2, 0));
-    std::cout << triangle.IntersectTriangle(R5, intersectionPoint) << std::endl;
+    std::cout << triangle.Intersect(R5, intersectionPoint) << std::endl;
 
     Ray R6 = Ray::GetTwoPointsRay(Vector(0, 0, -1), Vector(0, 0, 1));
-    std::cout << triangle.IntersectTriangle(R6, intersectionPoint) << std::endl;
+    std::cout << triangle.Intersect(R6, intersectionPoint) << std::endl;
     std::cout << intersectionPoint << std::endl;
     return 0;
 }
@@ -125,14 +125,14 @@ Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane) {
     Vector IntersectVector(0.0f, 0.0f, 0.0f);
     float t = 0.5f * (unitDir.y + 1.0f);
 
-    if (plane.Intersects(r, 10))
+    if (plane.Intersect(r, 10))
         return Vector(0, 0, 1);
 
-    if (sphere.Hit(r, 0, 10))
+    if (sphere.Intersect(r, 0, 10))
         return Vector(1.0, 0.5, 1.0);
 
 
-    if (triangle.IntersectTriangle(r, IntersectVector))
+    if (triangle.Intersect(r, IntersectVector))
         return Vector(1.0f, 1.0f, 0.5f);
 
 
