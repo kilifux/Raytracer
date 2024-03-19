@@ -10,7 +10,7 @@ bool Plane::Intersect(const Ray& ray, float range) {
 
     float t = -(normal.dotProduct(ray.Origin - center)) / ndotD;
     if (t > 0 && (range == 0.0f || t < range)) {
-        std::cout << ray.Origin + (ray.Direction * t) ;
+        std::cout << ray.Origin + (ray.Direction * t) << std::endl;
         return true;
     }
 
