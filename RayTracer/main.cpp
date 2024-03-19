@@ -69,6 +69,18 @@ int main(int argv, char** args) {
     Ray R6(Vector(0, 0, -1), Vector(0, 0, 1));
     std::cout << triangle.Intersect(R6, intersectionPoint) << " " << intersectionPoint << std::endl;
 
+    std::cout << "plane " << std::endl;
+    Plane p1(Vector(0, 20, 0), Vector(0,0,10));
+    Ray R8 (Vector(0, 50, 0), Vector(0, -20, 0));
+    p1.Intersect(R8, 200);
+
+
+    std::cout << "sphere " << std::endl;
+    Ray R7(Vector(0, 50, 0), Vector(0, -20, 0));
+    Sphere s2(Vector(10, 0, 0), 10);
+    s2.Intersect(R7, 0, 200);
+
+
     return 0;
 }
 
