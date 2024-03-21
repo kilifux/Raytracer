@@ -66,22 +66,3 @@ bool TGABuffer::WriteTGA(const char* fileName) {
     return true;
 }
 
-
-void TGABuffer::Render(OrthographicCamera camera, Sphere s1) {
-
-    Ray ray = Ray();
-
-
-    for (int x = 0; x < camera.GetResX(); x++) {
-        for (int y = 0; y < camera.GetResY(); y++) {
-            ray = camera.GenerateRay(x, y);
-            bool isS1 = s1.Intersect(ray, 0, 100);
-
-            if (isS1 ==  true) {
-                //std::cout << "hit" << std::endl;
-                this->SetPixel(x, y, LightIntensity(0.5, 0.5, 0.5));
-            }
-        }
-    }
-
-}

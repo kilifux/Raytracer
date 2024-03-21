@@ -30,6 +30,5 @@ public:
     unsigned int GetWidth() const { return width; }
     unsigned int GetHeight() const { return height; }
 
-    void Render(OrthographicCamera orthoCam, Sphere s1);
 };
 

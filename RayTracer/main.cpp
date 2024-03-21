@@ -11,7 +11,25 @@
 
 
 Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane);
-void Render(OrthographicCamera camera, TGABuffer tgaBuffer, Sphere s1);
+
+void Render(OrthographicCamera camera, TGABuffer& tgaBuffer, Sphere s1)
+{
+    Ray ray = Ray();
+
+
+    for (int x = 0; x < camera.GetResX(); x++) {
+        for (int y = 0; y < camera.GetResY(); y++) {
+            ray = camera.GenerateRay(x, y);
+            bool isS1 = s1.Intersect(ray, 0, 100);
+
+            if (isS1 == true) {
+                //std::cout << "hit" << std::endl;
+                tgaBuffer.SetPixel(x, y, LightIntensity(0.5, 0.5, 0.5));
+            }
+        }
+    }
+
+}
 
 int main(int argv, char** args) {
 
@@ -26,7 +44,7 @@ int main(int argv, char** args) {
 
     tgaBuffer.ClearColor(lightIntensity);
     
-    tgaBuffer.Render(orthoCam, s1);
+    Render(orthoCam, tgaBuffer, s1);
 
     
     tgaBuffer.WriteTGA("output.tga");
@@ -57,3 +75,5 @@ Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane) {
 
     return Vector(1.0, 1.0, 1.0) * (1.0 - t) + Vector(0.5, 0.7, 1.0f) * t;
 }
+
+
