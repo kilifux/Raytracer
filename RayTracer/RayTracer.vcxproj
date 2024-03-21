@@ -127,7 +127,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="LightIntensity.cpp" />
+    <ClCompile Include="OrthographicCamera.cpp" />
+    <ClCompile Include="PerspectiveCamera.cpp" />
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="Ray.cpp" />
     <ClCompile Include="main.cpp" />
@@ -137,7 +140,10 @@
     <ClCompile Include="Vector.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="LightIntensity.h" />
+    <ClInclude Include="OrthographicCamera.h" />
+    <ClInclude Include="PerspectiveCamera.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Sphere.h" />

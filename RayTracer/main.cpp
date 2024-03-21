@@ -6,23 +6,36 @@
 #include "Triangle.h"
 #include "Plane.h"
 #include "TGABuffer.h"
+#include "OrthographicCamera.h"
+#include "PerspectiveCamera.h"
 
 
 Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane);
+void Render(OrthographicCamera camera, TGABuffer tgaBuffer, Sphere s1);
 
 int main(int argv, char** args) {
 
-    TGABuffer tgaBuffer(800, 400);
+    OrthographicCamera orthoCam = OrthographicCamera(1024,1024,Vector(0,0,10), Vector(0,0,-1), Vector(0,1,0));
+
+    Sphere s1 = Sphere(Vector(0, 1, 0), 3);
+    //Triangle t1 = Triangle(Vector(0, 0, 0), Vector(0, 0.5, 0), Vector(0.5, 0, 0));
+    //Plane p1;
+
+    TGABuffer tgaBuffer(orthoCam.GetResX(), orthoCam.GetResY());
     LightIntensity lightIntensity(0.2, 0.4, 0.85);
 
     tgaBuffer.ClearColor(lightIntensity);
     
+    tgaBuffer.Render(orthoCam, s1);
 
+    
     tgaBuffer.WriteTGA("output.tga");
 
 
     return 0;
 }
+
+
 
 
 Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane) {

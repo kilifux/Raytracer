@@ -20,7 +20,7 @@ bool Sphere::Intersect(Ray ray, float t_min, float t_max) const {
     if (discriminant > 0.00001f)
     {
         temp = (-b - std::sqrtf(discriminant)) / a;
-        std::cout << ray.pointAtParameter(temp) << std::endl;
+        //std::cout << ray.pointAtParameter(temp) << std::endl;
 
         if (temp < t_max && temp > t_min)
             return true;
@@ -46,11 +46,11 @@ bool Sphere::Intersect(Ray ray, float t_min, float t_max) const {
         //std::cout << "temp2 " << temp << std::endl;
 
         if (temp <= t_max && temp > t_min) {
-            std::cout << ray.pointAtParameter(temp) << std::endl;
+            //std::cout << ray.pointAtParameter(temp) << std::endl;
 
             return true;
         }
     }
-    std::cout << "Nie ma przeciecia!" << std::endl;
+    //std::cout << "Nie ma przeciecia!" << std::endl;
     return false;
 }

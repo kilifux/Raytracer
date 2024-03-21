@@ -1,5 +1,8 @@
 #pragma once
 #include "LightIntensity.h"
+#include "Ray.h"
+#include "OrthographicCamera.h"
+#include "Sphere.h"
 
 
 class TGABuffer {
@@ -26,5 +29,7 @@ public:
     static unsigned int GetColorFromArgb(unsigned int red, unsigned int green, unsigned int blue);
     unsigned int GetWidth() const { return width; }
     unsigned int GetHeight() const { return height; }
+
+    void Render(OrthographicCamera orthoCam, Sphere s1);
 };
 
