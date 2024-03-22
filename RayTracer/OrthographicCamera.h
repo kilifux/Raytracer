@@ -13,6 +13,9 @@ public:
 	int GetResX();
 	int GetResY();
 
+	Vector GetCameraTarget();
+	Vector GetPos();
+
 	virtual Ray GenerateRay(int x, int y);
 };
 

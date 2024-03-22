@@ -24,7 +24,26 @@ void Render(OrthographicCamera camera, TGABuffer& tgaBuffer, Sphere s1)
 
             if (isS1 == true) {
                 //std::cout << "hit" << std::endl;
-                tgaBuffer.SetPixel(x, y, LightIntensity(0.5, 0.5, 0.5));
+                tgaBuffer.SetPixel(x, y, LightIntensity(s1.colour.x,s1.colour.y,s1.colour.z));
+            }
+        }
+    }
+
+}
+
+void Render(PerspectiveCamera camera, TGABuffer& tgaBuffer, Sphere s1)
+{
+    Ray ray = Ray();
+
+    std::cout << "herre" << std::endl;
+    for (int x = 0; x < camera.GetResX(); x++) {
+        for (int y = 0; y < camera.GetResY(); y++) {
+            ray = camera.GenerateRay(x, y);
+            bool isS1 = s1.Intersect(ray, 0, 100);
+
+            if (isS1 == true) {
+                //std::cout << "hit" << std::endl;
+                tgaBuffer.SetPixel(x, y, LightIntensity(s1.colour.x, s1.colour.y, s1.colour.z));
             }
         }
     }
@@ -34,9 +53,11 @@ void Render(OrthographicCamera camera, TGABuffer& tgaBuffer, Sphere s1)
 int main(int argv, char** args) {
 
     OrthographicCamera orthoCam = OrthographicCamera(1024,1024,Vector(0,0,10), Vector(0,0,-1), Vector(0,1,0));
+    PerspectiveCamera perspCam = PerspectiveCamera(1024,1024, 0.1f, 100, 90.0f, Vector(0, 0, 10), Vector(0, 0, -1), Vector(0, 1, 0));
 
-    Sphere s1 = Sphere(Vector(0, 0, -10), 0.5);
-    Sphere s2 = Sphere(Vector(0.5, 0, -10), 0.2);
+    //dont know why but to move sphere up in orthographic camera you have to put -1 intead of 1
+    Sphere s1 = Sphere(Vector(0, 0, -10), 0.5, Vector(0.5f,0.1f,0.3f));
+    Sphere s2 = Sphere(Vector(0.5, -1, -20), 0.5, Vector(0.2f,0.7f,0.9f));
     //Triangle t1 = Triangle(Vector(0, 0, 0), Vector(0, 0.5, 0), Vector(0.5, 0, 0));
     //Plane p1;
 
@@ -45,9 +66,10 @@ int main(int argv, char** args) {
 
     tgaBuffer.ClearColor(lightIntensity);
     
-    Render(orthoCam, tgaBuffer, s1);
-    Render(orthoCam, tgaBuffer, s2);
-
+    //Render(orthoCam, tgaBuffer, s1);
+    //Render(orthoCam, tgaBuffer, s2);
+    Render(perspCam, tgaBuffer, s1);
+    Render(perspCam, tgaBuffer, s2);
     
     tgaBuffer.WriteTGA("output.tga");
 

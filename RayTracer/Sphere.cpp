@@ -37,7 +37,7 @@ bool Sphere::Intersect(Ray ray, float t_min, float t_max) const {
         //std::cout << "temp1 " << temp << std::endl;
 
         if (temp <= t_max && temp > t_min) {
-            std::cout << ray.pointAtParameter(temp) << std::endl;
+            //std::cout << ray.pointAtParameter(temp) << std::endl;
 
             return true;
         }
