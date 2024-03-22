@@ -35,7 +35,8 @@ int main(int argv, char** args) {
 
     OrthographicCamera orthoCam = OrthographicCamera(1024,1024,Vector(0,0,10), Vector(0,0,-1), Vector(0,1,0));
 
-    Sphere s1 = Sphere(Vector(0, 1, 0), 3);
+    Sphere s1 = Sphere(Vector(0, 0, -10), 0.5);
+    Sphere s2 = Sphere(Vector(0.5, 0, -10), 0.2);
     //Triangle t1 = Triangle(Vector(0, 0, 0), Vector(0, 0.5, 0), Vector(0.5, 0, 0));
     //Plane p1;
 
@@ -45,6 +46,7 @@ int main(int argv, char** args) {
     tgaBuffer.ClearColor(lightIntensity);
     
     Render(orthoCam, tgaBuffer, s1);
+    Render(orthoCam, tgaBuffer, s2);
 
     
     tgaBuffer.WriteTGA("output.tga");

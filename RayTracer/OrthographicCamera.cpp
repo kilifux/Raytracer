@@ -17,7 +17,11 @@ Ray OrthographicCamera::GenerateRay(int x, int y)
 	float pixelHeight = 2.0f / this->GetResolutionY();
 
 	float centreX = -1.0f + (x + 0.5f) * pixelWidth;
-	float centreY = -1.0f - (y + 0.5f) * pixelHeight;
+	float centreY = 1.0f - (y + 0.5f) * pixelHeight;
 
-	return Ray(Vector(centreX + GetPosition().x, centreY + GetPosition().y, 0), GetTarget());
+	Ray r1 = Ray(Vector(centreX + GetPosition().x, centreY + GetPosition().y, 0), GetTarget());
+
+	//std::cout << r1.Direction << " " << r1.Origin << std::endl;
+
+	return r1;
 }
