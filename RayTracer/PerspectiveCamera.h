@@ -20,7 +20,7 @@ public:
 	PerspectiveCamera(int resX, int resY, float nearPlane, float farPlane, float FOV, Vector position, Vector target = { 0, 0, -1 }, Vector up = { 0, 1, 0 })
 		: nearPlane(nearPlane), farPlane(farPlane), FOV(FOV), Camera(resX, resY, position, target.Normalize(), up) {}
 
-	Ray GenerateRay(int x, int y);
+	Ray GenerateRay(float x, float y);
 
 
 };

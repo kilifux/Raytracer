@@ -22,6 +22,6 @@ public:
 	Vector GetTarget();
 	Vector GetUp();
 
-	Ray GenerateRay(int x, int y);
+	Ray GenerateRay(float x, float y);
 };
 

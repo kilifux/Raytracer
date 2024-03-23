@@ -22,7 +22,7 @@ Vector PerspectiveCamera::GetCameraTarget()
 }
 
 
-Ray PerspectiveCamera::GenerateRay(int x, int y)
+Ray PerspectiveCamera::GenerateRay(float x, float y)
 {
 	
 	float aspect = GetResX() / GetResY();

@@ -16,6 +16,6 @@ public:
 	Vector GetCameraTarget();
 	Vector GetPos();
 
-	virtual Ray GenerateRay(int x, int y);
+	virtual Ray GenerateRay(float x, float y);
 };
 

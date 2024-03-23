@@ -37,7 +37,7 @@ Vector Camera::GetUp()
 }
 
 
-Ray Camera::GenerateRay(int x, int y)
+Ray Camera::GenerateRay(float x, float y)
 {
 	return Ray(Vector(x, y, 1), Vector(x, y, 10));
 }

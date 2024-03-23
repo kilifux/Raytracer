@@ -21,7 +21,7 @@ Vector OrthographicCamera::GetPos()
 	return GetPosition();
 }
 
-Ray OrthographicCamera::GenerateRay(int x, int y)
+Ray OrthographicCamera::GenerateRay(float x, float y)
 {
 	float pixelWidth = 2.0f / this->GetResX();
 	float pixelHeight = 2.0f / this->GetResY();
