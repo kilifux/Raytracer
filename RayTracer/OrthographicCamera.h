@@ -1,7 +1,7 @@
 #pragma once
 #include "Camera.h"
 
-class OrthographicCamera : Camera
+class OrthographicCamera : public Camera
 {
 public:
 
