@@ -26,19 +26,19 @@ Ray PerspectiveCamera::GenerateRay(float x, float y)
 {
 	
 	float aspect = GetResX() / GetResY();
-	// Find the half-height and half-width
-	float hh = tan((FOV * M_PI / 360) / 2.0) * farPlane;
+
+	float hh = tan((FOV * M_PI / 360) / 2.0) * planeDist;
 	float hw = aspect * hh;
 
 	float l, r, t, b;
 	l = -hw; r = hw;
 	b = -hh; t = hh;
 
-	// mapping pixels to screen space
+
 	float u = l + ((r - l) * (x + 0.5)) / GetResX();
 	float v = b + ((t - b) * (y + 0.5)) / GetResY();
 
-	// determining the Camera frame
+
 	Vector gaze = GetCameraTarget() - GetPos();
 
 	Vector w = -gaze;
@@ -52,9 +52,9 @@ Ray PerspectiveCamera::GenerateRay(float x, float y)
 
 	Vector e = GetPos();
 
-	// Generating the ray
-	Vector o = e; //<! ray's origin
-	Vector d = w  * -(farPlane) + uVec * u + vVec * v; //<! ray's direction
+
+	Vector o = e;
+	Vector d = w  * -(planeDist) + uVec * u + vVec * v;
 
 
 	Ray ray = Ray(o, d);
