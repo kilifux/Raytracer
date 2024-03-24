@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-bool Sphere::Intersect(Ray ray, float t_min, float t_max) const {
+bool Sphere::Intersect(Ray ray) const {
 
     Vector oc = ray.Origin - Center;
 
@@ -22,12 +22,12 @@ bool Sphere::Intersect(Ray ray, float t_min, float t_max) const {
         temp = (-b - std::sqrtf(discriminant)) / a;
         //std::cout << ray.pointAtParameter(temp) << std::endl;
 
-        if (temp < t_max && temp > t_min)
+        if (temp < this->t_max && temp > this->t_min)
             return true;
 
         temp = (-b + std::sqrtf(discriminant)) / a;
 
-        if (temp < t_max && temp > t_min)
+        if (temp < this->t_max && temp > this->t_min)
             return true;
     }
 
@@ -36,7 +36,7 @@ bool Sphere::Intersect(Ray ray, float t_min, float t_max) const {
         temp = (-b - std::sqrtf(discriminant)) / a;
         //std::cout << "temp1 " << temp << std::endl;
 
-        if (temp <= t_max && temp > t_min) {
+        if (temp <= this->t_max && temp > this->t_min) {
             //std::cout << ray.pointAtParameter(temp) << std::endl;
 
             return true;
@@ -45,7 +45,7 @@ bool Sphere::Intersect(Ray ray, float t_min, float t_max) const {
         temp = (-b + std::sqrtf(discriminant)) / a;
         //std::cout << "temp2 " << temp << std::endl;
 
-        if (temp <= t_max && temp > t_min) {
+        if (temp <= this->t_max && temp > this->t_min) {
             //std::cout << ray.pointAtParameter(temp) << std::endl;
 
             return true;

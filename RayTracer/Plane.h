@@ -8,9 +8,11 @@ public:
     Vector normal;
     Vector center;
 
+    float range = 100.0f;
+
     Plane();
     Plane(const Vector& center, const Vector& normal) : center(center), normal(normal) {}
 
-    bool Intersect(const Ray& ray, float range);
+    bool Intersect(const Ray& ray);
 
 };

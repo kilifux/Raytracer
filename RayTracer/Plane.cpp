@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-bool Plane::Intersect(const Ray& ray, float range) {
+bool Plane::Intersect(const Ray& ray) {
     float ndotD = normal.dotProduct(ray.Direction);
     if (ndotD == 0) {
         std::cout << "Brak przeciecia" << std::endl;
@@ -11,7 +11,7 @@ bool Plane::Intersect(const Ray& ray, float range) {
     }
 
     float t = -(normal.dotProduct(ray.Origin - center)) / ndotD;
-    if (t > 0 && (range == 0.0f || t < range)) {
+    if (t > 0 && (this->range == 0.0f || t < this->range)) {
         std::cout << ray.Origin + (ray.Direction * t) << std::endl;
         return true;
     }
