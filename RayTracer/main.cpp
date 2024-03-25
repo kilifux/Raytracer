@@ -33,70 +33,86 @@ Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane) {
     return Vector(1.0, 1.0, 1.0) * (1.0 - t) + Vector(0.5, 0.7, 1.0f) * t;
 }
 
-Vector getColour(std::shared_ptr<Scene> scene, Sphere sphere, Sphere s2, float x, float y, int resX, int resY) {
+Vector IntersectObjects(std::shared_ptr<Scene> scene, std::shared_ptr<Object>& closestObject, Ray ray) {
+    float closestDistance = FLT_MAX;
+    bool check = false;
 
-    Vector color = { 0, 0, 0 };
-    Ray nRay = scene->camera->GenerateRay(x, y);
+    for (int i = 0; i < scene->objects.size(); i++) {
+        std::shared_ptr<Object> obj = scene->objects[i];
 
-    bool intersect = sphere.Intersect(nRay);
+        bool intersect = obj->Intersect(ray);
 
-    if (intersect) {
+        if (intersect) {
 
-        color = color + sphere.colour;
-        //std::cout << color << std::endl;
-
+            if (fabs(scene->camera->GetPosition().z - obj->Center.z) < closestDistance) {
+                
+                closestDistance = fabs(scene->camera->GetPosition().z - obj->Center.z);
+                closestObject = obj;
+                check = true;
+            }
+        }
     }
-    else if (s2.Intersect(nRay))
-    {
-        color = color + s2.colour;
-        //std::cout << "hit" << std::endl;
+
+    if (check) {
+        return closestObject->GetColour();
     }
     else {
-        color = color + Vector(0.2, 0.2, 0.2);
+        return Vector(0.2, 0.2, 0.2);
     }
+}
+
+Vector getColour(std::shared_ptr<Scene> scene, float x, float y, int resX, int resY) {
+
+    Vector color = { 0, 0, 0 };
+    Ray ray = scene->camera->GenerateRay(x, y);
+    std::shared_ptr<Object> closestObj;
+
+    Vector colour = IntersectObjects(scene, closestObj, ray);
+
+    color = colour;
 
     return color;
 }
 
-Vector Sampling(std::shared_ptr<Scene> scene, Sphere sphere, Sphere s2, int x, int y, int resX, int resY, int maxSteps, float centreX, float centreY, float offset) {
+Vector Sampling(std::shared_ptr<Scene> scene, int x, int y, int resX, int resY, int maxSteps, float centreX, float centreY, float offset) {
 
     Vector colour = Vector(0, 0, 0);
     Vector centreColour = Vector(0, 0, 0);
     std::vector<Vector> tempColours;
     tempColours.clear();
 
-    centreColour = getColour(scene, sphere, s2, x + centreX, y + centreY, resX, resY);
+    centreColour = getColour(scene, x + centreX, y + centreY, resX, resY);
     //std::cout << x + centreX << " " << x + (centreX - offset) << " " << x + (centreX + offset) << std::endl;
-    tempColours.push_back(getColour(scene, sphere, s2, x + (centreX - offset), y + (centreY - offset), resX, resY));
-    tempColours.push_back(getColour(scene, sphere, s2, x + (centreX + offset), y + (centreY - offset), resX, resY));
-    tempColours.push_back(getColour(scene, sphere, s2, x + (centreX - offset), y + (centreY + offset), resX, resY));
-    tempColours.push_back(getColour(scene, sphere, s2, x + (centreX + offset), y + (centreY + offset), resX, resY));
+    tempColours.push_back(getColour(scene, x + (centreX - offset), y + (centreY - offset), resX, resY));
+    tempColours.push_back(getColour(scene, x + (centreX + offset), y + (centreY - offset), resX, resY));
+    tempColours.push_back(getColour(scene, x + (centreX - offset), y + (centreY + offset), resX, resY));
+    tempColours.push_back(getColour(scene, x + (centreX + offset), y + (centreY + offset), resX, resY));
 
     if (maxSteps > 1) {
         if ((tempColours[0] - centreColour).GetLength() > 0.4) {
             //std::cout << "0" << std::endl;
-            tempColours[0] = Sampling(scene, sphere, s2, x, y, resX, resY, maxSteps - 1, -offset * 0.5f, -offset * 0.5f, offset * 0.5f);
+            tempColours[0] = Sampling(scene, x, y, resX, resY, maxSteps - 1, -offset * 0.5f, -offset * 0.5f, offset * 0.5f);
         }
         else {
             tempColours[0] = (Vector)(tempColours[0] + centreColour) * 0.5;
         }
         if ((tempColours[1] - centreColour).GetLength() > 0.4) {
             //std::cout << "1" << std::endl;
-            tempColours[1] = Sampling(scene, sphere, s2, x, y, resX, resY, maxSteps - 1, +offset * 0.5f, -offset * 0.5f, offset * 0.5f);
+            tempColours[1] = Sampling(scene, x, y, resX, resY, maxSteps - 1, +offset * 0.5f, -offset * 0.5f, offset * 0.5f);
         }
         else {
             tempColours[1] = (Vector)(tempColours[1] + centreColour) * 0.5;
         }
         if ((tempColours[2] - centreColour).GetLength() > 0.4) {
             //std::cout << "2" << std::endl;
-            tempColours[2] = Sampling(scene, sphere, s2, x, y, resX, resY, maxSteps - 1, -offset * 0.5f, +offset * 0.5f, offset * 0.5f);
+            tempColours[2] = Sampling(scene, x, y, resX, resY, maxSteps - 1, -offset * 0.5f, +offset * 0.5f, offset * 0.5f);
         }
         else {
             tempColours[2] = (Vector)(tempColours[2] + centreColour) * 0.5;
         }
         if ((tempColours[3] - centreColour).GetLength() > 0.4) {
             //std::cout << "3" << std::endl;
-            tempColours[3] = Sampling(scene, sphere, s2, x, y, resX, resY, maxSteps - 1, +offset * 0.5f, +offset * 0.5f, offset * 0.5f);
+            tempColours[3] = Sampling(scene, x, y, resX, resY, maxSteps - 1, +offset * 0.5f, +offset * 0.5f, offset * 0.5f);
         }
         else {
             tempColours[3] = (Vector)(tempColours[3] + centreColour) * 0.5;
@@ -122,18 +138,16 @@ void Render(std::shared_ptr<Scene> scene, TGABuffer& tgaBuffer, Sphere s1, Spher
     std::cout << "render" << std::endl;
     for (int x = 0; x < scene->camera->GetResolutionX(); x++) {
         for (int y = 0; y < scene->camera->GetResolutionY(); y++) {
-            ray = scene->camera->GenerateRay(x, y);
-            bool isS1 = s1.Intersect(ray);
-            //std::cout << "here" << std::endl;
-            if (isS1 == true) {
-                //std::cout << "hit" << std::endl;
-                colour = Sampling(scene, s1, s2, x, y, scene->camera->GetResolutionX(), scene->camera->GetResolutionY(), 5, 0.0f, 0.0f, 0.5f);
-                tgaBuffer.SetPixel(x, y, LightIntensity(colour.x, colour.y, colour.z));
-            }
+
+            colour = Sampling(scene, x, y, scene->camera->GetResolutionX(), scene->camera->GetResolutionY(), 5, 0.0f, 0.0f, 0.5f);
+            tgaBuffer.SetPixel(x, y, LightIntensity(colour.x, colour.y, colour.z));
+
         }
     }
 
 }
+
+
 
 
 int main(int argv, char** args) {
@@ -156,12 +170,13 @@ int main(int argv, char** args) {
     Sphere s1 = Sphere(Vector(0, 0, -10), 0.5, Vector(0.9f,0.9f,0.9f));
     Sphere s2 = Sphere(Vector(0.5, 0, -20), 0.3, Vector(0.2f,0.7f,0.9f));
 
-    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(0, 0, -10), 1.5, Vector(0.1f, 0.1f, 0.1f));
-    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0.5, 0, -20), 1.5, Vector(0.2f, 0.7f, 0.9f));
+    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(0, 0, -10), 0.33, Vector(0.9f, 0.9f, 0.9f));
+    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0.5, 0, -15), 0.33, Vector(0.2f, 0.7f, 0.9f));
+    //std::shared_ptr<Sphere> sphere3 = std::make_shared<Sphere>(Vector(-0.5, -0.75, -20), 0.5, Vector(0.5f, 0.2f, 0.1f));
 
     scene->objects.push_back(sphere1);
     scene->objects.push_back(sphere2);
-
+    //scene->objects.push_back(sphere3);
 
     //make buffer
     TGABuffer tgaBuffer(camera->GetResolutionX(), camera->GetResolutionY());
@@ -171,7 +186,7 @@ int main(int argv, char** args) {
 
     //render
     Render(scene, tgaBuffer, s1, s2);
-    Render(scene, tgaBuffer, s2, s1);
+    //Render(scene, tgaBuffer, s2, s1);
     
     tgaBuffer.WriteTGA("output.tga");
 

@@ -14,11 +14,13 @@ public:
     float t_max = 100.0f;
     float t_min = 0.1f;
 
-    Sphere() {};
-    Sphere(float r, Vector colour) : Radius(r), colour(colour) {};
-    Sphere(Vector v, float r, Vector colour) : Center(v), Radius(r), colour(colour) {}
+    //Sphere() {};
+    Sphere(float r, Vector colour) : Radius(r), colour(colour), Object(colour) {};
+    Sphere(Vector v, float r, Vector colour) : Center(v), Radius(r), colour(colour), Object(colour) {}
 
-    bool Intersect(Ray ray) const;
+    Vector GetColour();
+
+    bool Intersect(Ray ray);
 
 
 };

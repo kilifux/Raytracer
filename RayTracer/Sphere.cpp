@@ -3,7 +3,12 @@
 
 #include <iostream>
 
-bool Sphere::Intersect(Ray ray) const {
+Vector Sphere::GetColour()
+{
+    return colour;
+}
+
+bool Sphere::Intersect(Ray ray) {
 
     Vector oc = ray.Origin - Center;
 

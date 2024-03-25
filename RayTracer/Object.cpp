@@ -1,6 +1,16 @@
 #include "Object.h"
 
+Object::Object(Vector colour)
+{
+	this->colour = colour;
+}
+
 bool Object::Intersect(Ray ray)
 {
-	return false;
+	return true;
+}
+
+Vector Object::GetColour()
+{
+	return colour;
 }
