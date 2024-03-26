@@ -8,7 +8,12 @@ Vector Sphere::GetColour()
     return colour;
 }
 
-bool Sphere::Intersect(Ray ray) {
+Vector Sphere::GetIntersectionPoint()
+{
+    return intersectionPoint;
+}
+
+Vector Sphere::Intersect(Ray ray) {
 
     Vector oc = ray.Origin - Center;
 
@@ -21,41 +26,68 @@ bool Sphere::Intersect(Ray ray) {
 
     float discriminant = b * b - a * c;
     //std::cout << discriminant << std::endl;
+    Vector one = Vector(-1000, -1000, -1000);
+    Vector two = Vector(-1000, -1000, -1000);
 
-    if (discriminant > 0.00001f)
+    if (discriminant > 0.001f)
     {
         temp = (-b - std::sqrtf(discriminant)) / a;
-        //std::cout << ray.pointAtParameter(temp) << std::endl;
+        //std::cout << "t1 " << temp << std::endl;
 
-        if (temp < this->t_max && temp > this->t_min)
-            return true;
+        if (temp <= this->t_max && temp > this->t_min) {
+            one = ray.Origin + ray.Direction * temp;
+            //std::cout << one << std::endl;
+
+        }
 
         temp = (-b + std::sqrtf(discriminant)) / a;
+        //std::cout << "t2 " << temp << std::endl;
+        if (temp <= this->t_max && temp > this->t_min) {
+            two = ray.Origin + ray.Direction * temp;
+            //std::cout << two << std::endl;
 
-        if (temp < this->t_max && temp > this->t_min)
-            return true;
+        }
+
+        if (one.z > two.z) {
+            //std::cout << "one " << one << std::endl;
+            return one;
+        }
+        else {
+            //std::cout << "two " << two << std::endl;
+            return two;
+        }
     }
 
-    if (discriminant < 0.00001f && discriminant > -0.00001f)
+    if (discriminant <= 0.001f && discriminant >= -0.001f)
     {
         temp = (-b - std::sqrtf(discriminant)) / a;
         //std::cout << "temp1 " << temp << std::endl;
 
         if (temp <= this->t_max && temp > this->t_min) {
-            //std::cout << ray.pointAtParameter(temp) << std::endl;
+            one = ray.Origin + ray.Direction * temp;
 
-            return true;
         }
 
         temp = (-b + std::sqrtf(discriminant)) / a;
         //std::cout << "temp2 " << temp << std::endl;
 
         if (temp <= this->t_max && temp > this->t_min) {
-            //std::cout << ray.pointAtParameter(temp) << std::endl;
 
-            return true;
+            two = ray.Origin + ray.Direction * temp;
+
+        }
+
+
+        //std::cout << one << " " << two << std::endl;
+        if (one.z > two.z) {
+            //std::cout << "one " << one << std::endl;
+            return one;
+        }
+        else {
+            //std::cout << "two " << two << std::endl;
+            return two;
         }
     }
     //std::cout << "Nie ma przeciecia!" << std::endl;
-    return false;
+    return Vector(-1000,-1000,-1000);
 }

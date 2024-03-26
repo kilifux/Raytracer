@@ -5,12 +5,18 @@ Object::Object(Vector colour)
 	this->colour = colour;
 }
 
-bool Object::Intersect(Ray ray)
+Vector Object::Intersect(Ray ray)
 {
-	return true;
+	return Vector(-1000,-1000,-1000);
 }
+
+
 
 Vector Object::GetColour()
 {
 	return colour;
+}
+
+Vector Object::GetIntersectionPoint() {
+	return intersectionPoint;
 }

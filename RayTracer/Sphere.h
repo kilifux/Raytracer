@@ -10,9 +10,10 @@ public:
     Vector Center;
     float Radius;
     Vector colour = Vector(0.0f, 0.0f, 0.0f);
+    Vector intersectionPoint;
 
     float t_max = 100.0f;
-    float t_min = 0.1f;
+    float t_min = 0.01f;
 
     //Sphere() {};
     Sphere(float r, Vector colour) : Radius(r), colour(colour), Object(colour) {};
@@ -20,7 +21,13 @@ public:
 
     Vector GetColour();
 
-    bool Intersect(Ray ray);
+    Vector GetIntersectionPoint();
+
+    Vector Intersect(Ray ray);
+
+    //bool Intersect(Ray ray, Vector& intersectionPoint);
+
+    //bool Intersect(Ray ray);
 
 
 };
