@@ -34,6 +34,8 @@ Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane) {
 }
 
 Vector IntersectObjects(std::shared_ptr<Scene> scene, Ray ray) {
+    //std::cout << ray.Direction << std::endl;
+
     float closestDistance = -1000;
     bool check = false;
     std::shared_ptr<Object> closestObject;
@@ -45,9 +47,9 @@ Vector IntersectObjects(std::shared_ptr<Scene> scene, Ray ray) {
 
         if (dist.z > -999) {
             //std::cout << dist << " < " << closestDistance << std::endl;
-            if (dist.z > closestDistance) {
+            if (dist.GetLength() > closestDistance) {
                 //std::cout << "change closest " << std::endl;
-                closestDistance = dist.z;
+                closestDistance = dist.GetLength();
                 closestObject = obj;
                 check = true;
             }
@@ -160,7 +162,7 @@ int main(int argv, char** args) {
     std::shared_ptr<OrthographicCamera> orthoCam = std::make_shared<OrthographicCamera>(512, 512, Vector(0,0,5), Vector(0,0,-1), Vector(0,1,0));
     std::shared_ptr<PerspectiveCamera> perspCam = std::make_shared<PerspectiveCamera>(512,512, 50.0f, 90.0f, Vector(0, 0, 5), Vector(0, 0, -1), Vector(0, 1, 0));
 
-    std::shared_ptr<Camera> camera = perspCam;
+    std::shared_ptr<Camera> camera = orthoCam;
 
     scene->camera = camera;
 
