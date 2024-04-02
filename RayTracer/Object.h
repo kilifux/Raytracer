@@ -1,17 +1,18 @@
 #pragma once
 #include "Ray.h"
+#include "Material.h"
 
 class Object
 {
 public:
 	Vector Center;
-	Vector colour = Vector(0.7,0.3,0.5);
 	Vector intersectionPoint;
+	Material material;
 
-	Object(Vector colour);
+	Object(Material material);
 	virtual Vector Intersect(Ray ray);
-	//virtual bool Intersect(Ray ray, Vector& intersectionPoint);
-	Vector GetColour();
+
+	Material GetMaterial();
 	Vector GetIntersectionPoint();
 };
 

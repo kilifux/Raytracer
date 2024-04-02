@@ -57,7 +57,7 @@ Vector IntersectObjects(std::shared_ptr<Scene> scene, Ray ray) {
     }
 
     if (check) {
-        return closestObject->GetColour();
+        return closestObject->GetMaterial().GetColour();
     }
     else {
         return Vector(0.2, 0.4, 0.85);
@@ -162,18 +162,15 @@ int main(int argv, char** args) {
     std::shared_ptr<OrthographicCamera> orthoCam = std::make_shared<OrthographicCamera>(512, 512, Vector(0,0,5), Vector(0,0,-1), Vector(0,1,0));
     std::shared_ptr<PerspectiveCamera> perspCam = std::make_shared<PerspectiveCamera>(512,512, 50.0f, 90.0f, Vector(0, 0, 5), Vector(0, 0, -1), Vector(0, 1, 0));
 
-    std::shared_ptr<Camera> camera = orthoCam;
+    std::shared_ptr<Camera> camera = perspCam;
 
     scene->camera = camera;
 
 
     //make objects
     //dont know why but to move sphere up in orthographic camera you have to put -1 intead of 1
-    //Sphere s1 = Sphere(Vector(0, 0, 5), 0.5, Vector(0.5f, 0.1f, 0.3f));
-    //Sphere s2 = Sphere(Vector(0.5, 0, 3), 0.3, Vector(0.2f,0.7f,0.9f));
-
-    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(-0.25, -0.25, 0), 0.5, Vector(0.9f, 0.9f, 0.9f));
-    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0.25, 0, 0), 0.5, Vector(0.2f, 0.7f, 0.9f));
+    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(-0.25, -0.25, 0), 0.5, Material(Vector(0.9f, 0.9f, 0.9f)));
+    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0.25, 0, 0), 0.5, Material(Vector(0.2f, 0.7f, 0.9f)));
     //std::shared_ptr<Sphere> sphere3 = std::make_shared<Sphere>(Vector(-0.5, -0.75, -20), 0.5, Vector(0.5f, 0.2f, 0.1f));
 
     scene->objects.push_back(sphere1);

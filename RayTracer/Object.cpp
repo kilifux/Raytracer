@@ -1,8 +1,10 @@
 #include "Object.h"
 
-Object::Object(Vector colour)
+
+
+Object::Object(Material material)
 {
-	this->colour = colour;
+	this->material = material;
 }
 
 Vector Object::Intersect(Ray ray)
@@ -12,9 +14,9 @@ Vector Object::Intersect(Ray ray)
 
 
 
-Vector Object::GetColour()
+Material Object::GetMaterial()
 {
-	return colour;
+	return this->material;
 }
 
 Vector Object::GetIntersectionPoint() {

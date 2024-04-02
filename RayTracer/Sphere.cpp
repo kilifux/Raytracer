@@ -3,10 +3,6 @@
 
 #include <iostream>
 
-Vector Sphere::GetColour()
-{
-    return colour;
-}
 
 Vector Sphere::GetIntersectionPoint()
 {
