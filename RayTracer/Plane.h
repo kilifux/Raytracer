@@ -4,17 +4,18 @@
 #include "Ray.h"
 #include "Object.h"
 
-class Plane {
+class Plane : public Object{
 public:
     Vector normal;
     Vector center;
-    Vector colour = Vector(0.0f,0.0f,0.0f);
+    //Vector colour = Vector(0.0f,0.0f,0.0f);
+    //Material material;
 
     float range = 100.0f;
 
     Plane();
-    Plane(const Vector& center, const Vector& normal, Vector colour) : center(center), normal(normal) {}
+    Plane(const Vector& center, const Vector& normal, Material material) : center(center), normal(normal), Object(material) {}
 
-    bool Intersect(const Ray& ray);
+    Vector Intersect(Ray ray);
 
 };
