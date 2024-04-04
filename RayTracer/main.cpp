@@ -11,6 +11,7 @@
 #include "Camera.h"
 #include "Scene.h"
 #include <vector>
+#include "SpotLight.h"
 
 
 Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane) {
@@ -35,14 +36,14 @@ Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane) {
 
 Vector IntersectObjects(std::shared_ptr<Scene> scene, Ray ray) {
     //std::cout << scene->objects.size() << std::endl;
-
     float closestDistance = -1000;
     bool check = false;
     std::shared_ptr<Object> closestObject;
+    Vector dist;
 
     for (int i = 0; i < scene->objects.size(); i++) {
         std::shared_ptr<Object> obj = scene->objects[i];
-        Vector dist = obj->Intersect(ray);
+        dist = obj->Intersect(ray);
         //std::cout << "dist " << dist << std::endl;
 
         if (dist.z > -999) {
@@ -56,8 +57,11 @@ Vector IntersectObjects(std::shared_ptr<Scene> scene, Ray ray) {
         }
     }
 
+    Vector color = { 0, 0, 0 };
+
     if (check) {
-        return closestObject->GetMaterial().GetColour();
+        color = color + scene->Light(dist, closestObject, ray.Direction.Normalize());
+        return color;
     }
     else {
         return Vector(0.2, 0.4, 0.85);
@@ -177,6 +181,18 @@ int main(int argv, char** args) {
 
     scene->objects.push_back(sphere1);
     scene->objects.push_back(sphere2);
+
+
+    std::shared_ptr<SpotLight> spotLight = std::make_shared<SpotLight>(
+        Vector(0, 0, 0),
+        LightIntensity(1.0, 1.0, 1.0),
+        1.f,
+        0.05f,
+        0.012f
+    );
+
+
+    scene->lights.push_back(spotLight);
     //scene->objects.push_back(plane1);
     //scene->objects.push_back(sphere3);
 
