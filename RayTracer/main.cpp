@@ -43,12 +43,12 @@ Vector IntersectObjects(std::shared_ptr<Scene> scene, Ray ray) {
     for (int i = 0; i < scene->objects.size(); i++) {
         std::shared_ptr<Object> obj = scene->objects[i];
         Vector dist = obj->Intersect(ray);
-        //std::cout << "dist " << dist << std::endl;
+
 
         if (dist.z > -999) {
-            //std::cout << dist << " < " << closestDistance << std::endl;
-            if (dist.GetLength() > closestDistance) {
-                //std::cout << "change closest " << std::endl;
+
+            if (dist.GetLength() >= closestDistance) {
+
                 closestDistance = dist.GetLength();
                 closestObject = obj;
                 check = true;
@@ -69,9 +69,34 @@ Vector getColour(std::shared_ptr<Scene> scene, float x, float y, int resX, int r
     Vector color = { 0, 0, 0 };
     Ray ray = scene->camera->GenerateRay(x, y);
 
-    Vector colour = IntersectObjects(scene, ray);
+    float closestDistance = 1000; //1000
+    bool check = false;
+    std::shared_ptr<Object> closestObject;
 
-    color = colour;
+    for (int i = 0; i < scene->objects.size(); i++) {
+       
+        std::shared_ptr<Object> obj = scene->objects[i];
+        Vector intersection = obj->Intersect(ray);
+        float len = (intersection-ray.Origin).GetLength();
+
+        if (intersection.z != -1000.0f) {
+
+            if (intersection.z < closestDistance) { //<
+                closestDistance = intersection.z;
+                closestObject = obj;
+                check = true;
+            }
+        }
+    }
+
+    if (check) {
+        color = closestObject->GetMaterial().GetColour();
+    }
+    else {
+        color = Vector(0.2, 0.4, 0.85);
+    }
+
+    //color = colour;
 
     return color;
 }
@@ -160,7 +185,7 @@ int main(int argv, char** args) {
 
     //make cameras
     std::shared_ptr<OrthographicCamera> orthoCam = std::make_shared<OrthographicCamera>(512, 512, Vector(0,0,5), Vector(0,0,-1), Vector(0,1,0));
-    std::shared_ptr<PerspectiveCamera> perspCam = std::make_shared<PerspectiveCamera>(512,512, 50.0f, 90.0f, Vector(0, 0, 5), Vector(0, 0, -1), Vector(0, 1, 0));
+    std::shared_ptr<PerspectiveCamera> perspCam = std::make_shared<PerspectiveCamera>(512,512, 100.0f, 90.0f, Vector(0, 0, 5), Vector(0, 0, -1), Vector(0, 1, 0));
     
     std::shared_ptr<Camera> camera = perspCam;
 
@@ -171,12 +196,24 @@ int main(int argv, char** args) {
     //dont know why but to move sphere up in orthographic camera you have to put -1 intead of 1
     std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(-0.25, -0.25, 0), 0.5, Material(Vector(0.9f, 0.9f, 0.9f)));
     std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0.25, 0, 0), 0.5, Material(Vector(0.2f, 0.7f, 0.9f)));
+    std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(8, 0, 0), Vector(-1, 0, 0), Material(Vector(1.0f, 0.0f, 0.0f))); //r
+    std::shared_ptr<Plane> P2 = std::make_shared<Plane>(Vector(-8, 0, 0), Vector(1, 0, 0), Material(Vector(0.0f, 1.0f, 0.0f))); //g
+    std::shared_ptr<Plane> P3 = std::make_shared<Plane>(Vector(0, 8, 0), Vector(0, -1, 0), Material(Vector(0.0f, 0.0f, 1.0f))); //b
+    std::shared_ptr<Plane> P4 = std::make_shared<Plane>(Vector(0, -8, 0), Vector(0, 1, 0), Material(Vector(0.0f, 1.0f, 1.0f))); //turkusowy
+    std::shared_ptr<Plane> P5 = std::make_shared<Plane>(Vector(0, 0, 32), Vector(0, 0, -1), Material(Vector(1.0f, 0.0f, 1.0f))); //fiolet
+    std::shared_ptr<Plane> P6 = std::make_shared<Plane>(Vector(0, 0, -32), Vector(0, 0, 1), Material(Vector(1.0f, 1.0f, 0.0f))); //zolty
     //std::shared_ptr<Sphere> sphere3 = std::make_shared<Sphere>(Vector(-0.5, -0.75, -20), 0.5, Vector(0.5f, 0.2f, 0.1f));
 
     //std::shared_ptr<Plane> plane1 = std::make_shared<Plane>(Vector(-1, 0, 0), Vector(0,0,1), Material(Vector(0.1f, 0.1f, 0.1f)));
 
     scene->objects.push_back(sphere1);
     scene->objects.push_back(sphere2);
+    scene->objects.push_back(P1);
+    scene->objects.push_back(P2);
+    scene->objects.push_back(P3);
+    scene->objects.push_back(P4);
+    scene->objects.push_back(P5);
+    scene->objects.push_back(P6);
     //scene->objects.push_back(plane1);
     //scene->objects.push_back(sphere3);
 

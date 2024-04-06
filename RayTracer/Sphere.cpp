@@ -13,7 +13,8 @@ Vector Sphere::Intersect(Ray ray) {
 
     Vector oc = ray.Origin - Center;
 
-    float temp = 0.0f;
+    float temp1 = 0.0f;
+    float temp2 = 0.0f;
 
     float a = ray.Direction.dotProduct(ray.Direction);
     float b = oc.dotProduct(ray.Direction);
@@ -27,61 +28,66 @@ Vector Sphere::Intersect(Ray ray) {
 
     if (discriminant > 0.001f)
     {
-        temp = (-b - std::sqrtf(discriminant)) / a;
+        temp1 = (-b - std::sqrtf(discriminant)) / a;
         //std::cout << "t1 " << temp << std::endl;
 
-        if (temp <= this->t_max && temp > this->t_min) {
-            one = ray.Origin + ray.Direction * temp;
+        if (temp1 <= this->t_max && temp1 > this->t_min) {
+            one = ray.Origin + ray.Direction * temp1;
             //std::cout << one << std::endl;
 
         }
 
-        temp = (-b + std::sqrtf(discriminant)) / a;
+        temp2 = (-b + std::sqrtf(discriminant)) / a;
         //std::cout << "t2 " << temp << std::endl;
-        if (temp <= this->t_max && temp > this->t_min) {
-            two = ray.Origin + ray.Direction * temp;
+        if (temp2 <= this->t_max && temp2 > this->t_min) {
+            two = ray.Origin + ray.Direction * temp2;
             //std::cout << two << std::endl;
 
         }
 
-        if (one.z > two.z) {
-            //std::cout << "one " << one << std::endl;
-            return one;
+        //std::cout << "LENGTHS: " << one.GetLength() << " " << two.GetLength() << std::endl;
+        if (temp1 < temp2) {
+           // std::cout << "one " << one.GetLength() << std::endl;
+            //std::cout << "two " << two.GetLength() << std::endl;
+            return Vector(temp1,temp1,temp1);
         }
         else {
+            //std::cout << "one " << one << std::endl;
             //std::cout << "two " << two << std::endl;
-            return two;
+            return Vector(temp2,temp2,temp2);
         }
     }
 
     if (discriminant <= 0.001f && discriminant >= -0.001f)
     {
-        temp = (-b - std::sqrtf(discriminant)) / a;
+        temp1 = (-b - std::sqrtf(discriminant)) / a;
         //std::cout << "temp1 " << temp << std::endl;
 
-        if (temp <= this->t_max && temp > this->t_min) {
-            one = ray.Origin + ray.Direction * temp;
+        if (temp1 <= this->t_max && temp1 > this->t_min) {
+            one = ray.Origin + ray.Direction * temp1;
 
         }
 
-        temp = (-b + std::sqrtf(discriminant)) / a;
+        temp2 = (-b + std::sqrtf(discriminant)) / a;
         //std::cout << "temp2 " << temp << std::endl;
 
-        if (temp <= this->t_max && temp > this->t_min) {
+        if (temp2 <= this->t_max && temp2 > this->t_min) {
 
-            two = ray.Origin + ray.Direction * temp;
+            two = ray.Origin + ray.Direction * temp2;
 
         }
 
 
-        //std::cout << one << " " << two << std::endl;
-        if (one.z > two.z) {
-            //std::cout << "one " << one << std::endl;
-            return one;
+        //std::cout << "LENGTHS: " << one.GetLength() << " " << two.GetLength() << std::endl;
+        if (temp1 < temp2) {
+            // std::cout << "one " << one.GetLength() << std::endl;
+             //std::cout << "two " << two.GetLength() << std::endl;
+            return Vector(temp1, temp1, temp1);
         }
         else {
+            //std::cout << "one " << one << std::endl;
             //std::cout << "two " << two << std::endl;
-            return two;
+            return Vector(temp2, temp2, temp2);
         }
     }
     //std::cout << "Nie ma przeciecia!" << std::endl;
