@@ -10,6 +10,7 @@ public:
     Vector center;
     //Vector colour = Vector(0.0f,0.0f,0.0f);
     //Material material;
+    Vector intersectionPoint;
 
     float range = 100.0f;
 
@@ -17,5 +18,5 @@ public:
     Plane(const Vector& center, const Vector& normal, Material material) : center(center), normal(normal), Object(material) {}
 
     Vector Intersect(Ray ray);
-
+    Vector GetIntersectionPoint();
 };

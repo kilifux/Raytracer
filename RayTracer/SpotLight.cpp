@@ -64,5 +64,6 @@ Vector SpotLight::calculateLightingColor(std::vector<std::shared_ptr<Object>> ob
     color.y = std::clamp(color.y, 0.0f, 255.0f);
     color.z = std::clamp(color.z, 0.0f, 255.0f);
 
+
     return color;
 }

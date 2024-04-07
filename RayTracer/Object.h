@@ -13,6 +13,6 @@ public:
 	virtual Vector Intersect(Ray ray);
 
 	Material GetMaterial();
-	Vector GetIntersectionPoint();
+	virtual Vector GetIntersectionPoint();
 };
 
