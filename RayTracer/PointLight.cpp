@@ -1,52 +1,74 @@
 #include "PointLight.h"
+#include <algorithm>
 
 
 Vector PointLight::calculateLightingColor(std::vector<std::shared_ptr<Object>> objects, Vector IntersectionPoint, std::shared_ptr<Object> closestObject, Vector cameraDir)
 {
-    // Kierunek œwiat³a
-    Vector lightDir = (position - IntersectionPoint).Normalize();
+    bool shadow = false;
+    float dist = (position - IntersectionPoint).GetLength();
 
-    // Kierunek normalny w punkcie przeciêcia
-    Vector normal = Vector{ 1.f, 0.f, 0.f };    //closestObject->GetNormal(IntersectionPoint).Normalize();
+    Ray nRay = Ray(position, (IntersectionPoint - position).Normalize());
 
-    // Kierunek widzenia
-    Vector viewDir = (cameraDir * -1).Normalize();
+    for (int i = 0; i < objects.size(); i++) {
+        std::shared_ptr<Object> s = objects[i];
+        Vector res = s->Intersect(nRay);
 
-    // Obliczanie diffuse
-    float diffuseIntensity = std::max(0.0f, normal.dotProduct(lightDir));
-    Vector diffuseColor = closestObject->GetMaterial().GetColour() * diffuseIntensity;
-
-    // Obliczanie specular
-    Vector reflectDir = (lightDir - normal * (2 * lightDir.dotProduct(normal))).Normalize();
-    float specularIntensity = pow(std::max(0.0f, reflectDir.dotProduct(viewDir)), closestObject->GetMaterial().specularAmount);
-
-    Vector LightIntensityVector = Vector{ (float)lightIntensity.gRed(), (float)lightIntensity.gGreen() , (float)lightIntensity.gBlue() };
-    Vector mulTemp = LightIntensityVector * specularIntensity;
-
-   Vector specularColor = mulTemp * closestObject->GetMaterial().specularCoeff;
-
-    // Sprawdzenie cienia
-    bool shadow = isInShadow(objects, IntersectionPoint);
-
-    // Jeœli punkt przeciêcia znajduje siê w cieniu, zwracamy kolor t³a
-    if (shadow) {
-        return Vector(0.0f, 0.2f, 0.0f);
-    }
-
-    // Kolor ostateczny to suma diffuse i specular
-    Vector finalColor = diffuseColor * intensity + specularColor * intensity;
-
-    return finalColor;
-}
-
-bool PointLight::isInShadow(std::vector<std::shared_ptr<Object>> objects, Vector intersectionPoint)
-{
-    // Sprawdzenie, czy punkt przeciêcia znajduje siê w cieniu
-    for (auto& obj : objects) {
-        Vector dist = obj->Intersect(Ray(intersectionPoint, position));
-        if (dist.z > 0 && dist.GetLength() < (position - intersectionPoint).GetLength()) {
-            return true; // Punkt przeciêcia jest w cieniu
+        if (dist - res.GetLength() > 0.1f)
+        {
+            shadow = true;
+            break;
         }
     }
-    return false; // Punkt przeciêcia nie jest w cieniu
+
+    Vector color = closestObject->GetMaterial().GetColour() * intensity;
+    Vector ambient = color * 0.2f;
+
+    ambient.x *= lightIntensity.gRed();
+    ambient.y *= lightIntensity.gGreen();
+    ambient.z *= lightIntensity.gBlue();
+
+    if (shadow) {
+        color = ambient;
+    } 
+    else
+    {
+        float attenuation = 1.0 / (constAtten + linearAtten * dist + quadAtten * (dist * dist));
+
+        // Obliczanie kierunku œwiat³a i normalizacja
+        Vector lightDir = (position - IntersectionPoint).Normalize();
+
+        // Obliczanie stopnia oœwietlenia (cosinus k¹ta miêdzy normaln¹ powierzchni a kierunkiem œwiat³a)
+        float shade = closestObject->GetNormalAt(IntersectionPoint).dotProduct(lightDir);
+
+        // Obliczanie odbicia zwierciadlanego
+        Vector R = lightDir - closestObject->GetNormalAt(IntersectionPoint) * 2.0f * closestObject->GetNormalAt(IntersectionPoint).dotProduct(lightDir);
+
+        // Obliczanie sk³adnika odbicia zwierciadlanego
+        float spec = std::pow(std::max(cameraDir.dotProduct(R), 0.0f), closestObject->GetMaterial().specularAmount);
+
+        // Obliczanie sk³adnika odbicia œwiat³a
+        Vector lightIntensityVector = Vector{ (float)lightIntensity.gRed(), (float)lightIntensity.gGreen() ,(float)lightIntensity.gBlue()};
+
+        Vector diffuse = color * shade * attenuation;
+
+        diffuse.x *= lightIntensityVector.x;
+        diffuse.y *= lightIntensityVector.y;
+        diffuse.z *= lightIntensityVector.z;
+
+        Vector specular = color;
+        specular.x *= spec * lightIntensityVector.x;
+        specular.y *= spec * lightIntensityVector.y;
+        specular.z *= spec * lightIntensityVector.z;
+
+        // £¹czenie sk³adowych koloru
+        color = diffuse + specular;
+    }
+
+    color.x = std::clamp(color.x, 0.0f, 1.0f);
+    color.y = std::clamp(color.y, 0.0f, 1.0f);
+    color.z = std::clamp(color.z, 0.0f, 1.0f);
+
+    return color;
+
+
 }

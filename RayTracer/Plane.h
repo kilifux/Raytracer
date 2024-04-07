@@ -19,4 +19,8 @@ public:
 
     Vector Intersect(Ray ray);
     Vector GetIntersectionPoint();
+
+    virtual Vector GetNormalAt(const Vector& point) const override {
+        return normal;
+    }
 };

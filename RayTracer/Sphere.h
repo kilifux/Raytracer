@@ -23,6 +23,8 @@ public:
 
     Vector Intersect(Ray ray);
 
+    virtual Vector GetNormalAt(const Vector& point) const override;
+
     //bool Intersect(Ray ray, Vector& intersectionPoint);
 
     //bool Intersect(Ray ray);

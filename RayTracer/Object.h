@@ -14,5 +14,7 @@ public:
 
 	Material GetMaterial();
 	virtual Vector GetIntersectionPoint();
+
+	virtual Vector GetNormalAt(const Vector& point) const = 0;
 };
 

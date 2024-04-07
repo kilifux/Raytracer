@@ -88,3 +88,8 @@ Vector Sphere::Intersect(Ray ray) {
 
     return Vector(-1000,-1000,-1000);
 }
+
+Vector Sphere::GetNormalAt(const Vector& point) const {
+    Vector normal = (point - Center).Normalize();
+    return normal;
+}

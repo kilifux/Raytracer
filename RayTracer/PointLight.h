@@ -9,6 +9,10 @@ public:
 	Vector color;
 	float intensity;
 
+	float constAtten = 0.4f;
+	float linearAtten = 0.1f;
+	float quadAtten = 0.1f;
+
 
 	PointLight(Vector position, LightIntensity lightIntensity, float intensity) : Light(position, lightIntensity), intensity(intensity){}
 	PointLight(Vector position, LightIntensity lightIntensity) : Light(position, lightIntensity), intensity(1.f) {}
