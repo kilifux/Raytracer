@@ -202,8 +202,8 @@ int main(int argv, char** args) {
 
     //make objects
     //dont know why but to move sphere up in orthographic camera you have to put -1 intead of 1
-    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(-0.25, -0.25, 0), 0.5, Material(Vector(0.9f, 0.9f, 0.9f)));
-    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0.25, 0, 0), 0.5, Material(Vector(0.2f, 0.7f, 0.9f)));
+    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(-0.25, -1.0f, 0), 0.5, Material(Vector(0.9f, 0.9f, 0.9f)));
+    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0.25, -0.75f, 0), 0.5, Material(Vector(0.2f, 0.7f, 0.9f)));
     std::shared_ptr<Plane> plane = std::make_shared<Plane>(Vector(0, -2, 0), Vector(0, 1, 0), Material(Vector(1.f, 1.f, 1.f)));
 
     std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(8, 0, 0), Vector(-1, 0, 0), Material(Vector(1.0f, 0.0f, 0.0f))); //r
@@ -231,7 +231,7 @@ int main(int argv, char** args) {
 
 
     std::shared_ptr<SpotLight> spotLight = std::make_shared<SpotLight>(
-        Vector(5, 0, -5),
+        Vector(1, 1, 0),
         LightIntensity(1.0, 1.0, 1.0),
         1.f,
         0.05f,
@@ -242,7 +242,7 @@ int main(int argv, char** args) {
 
 
     //scene->lights.push_back(spotLight);
-    scene->lights.push_back(pointLight);
+    scene->lights.push_back(spotLight);
     //scene->objects.push_back(plane1);
     //scene->objects.push_back(sphere3);
 
@@ -256,7 +256,7 @@ int main(int argv, char** args) {
     Render(scene, tgaBuffer);
     //Render(scene, tgaBuffer, s2, s1);
     
-    tgaBuffer.WriteTGA("outputPoint.tga");
+    tgaBuffer.WriteTGA("outputSpot.tga");
 
 
     return 0;
