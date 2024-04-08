@@ -205,7 +205,7 @@ int main(int argv, char** args) {
     //make objects
     //dont know why but to move sphere up in orthographic camera you have to put -1 intead of 1
     std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(0, 0.0f, -2), 0.5, Material(Vector(0.9f, 0.9f, 0.9f)));
-    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0.25, 0.0f, -1), 0.5, Material(Vector(0.2f, 0.7f, 0.9f),128,1,0));
+    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0, 0.75f, -1), 0.3, Material(Vector(0.2f, 0.7f, 0.9f),128,1,0));
     std::shared_ptr<Plane> plane = std::make_shared<Plane>(Vector(0, -2, 0), Vector(0, 1, 0), Material(Vector(1.f, 1.f, 1.f)));
 
     std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(4, 0, 0), Vector(-1, 0, 0), Material(Vector(1.0f, 0.0f, 0.0f), 128, 1,0)); //r
@@ -233,11 +233,11 @@ int main(int argv, char** args) {
 
 
     std::shared_ptr<SpotLight> spotLight = std::make_shared<SpotLight>(
-        Vector(2, 1, 3),
+        Vector(0, 2, 3),
         LightIntensity(1.0, 1.0, 1.0),
         0.9f,
-        0.00005f,
-        0.000012f
+        0.05f,
+        0.0012f
     );
 
     std::shared_ptr<PointLight> pointLight = std::make_shared<PointLight>(Vector(3, 0, -3), LightIntensity(1.0, 1.0, 1.0), 0.5f);

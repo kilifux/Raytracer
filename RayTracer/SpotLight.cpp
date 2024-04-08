@@ -14,7 +14,7 @@ Vector SpotLight::calculateLightingColor(std::vector<std::shared_ptr<Object>> ob
         std::shared_ptr<Object> s = objects[i];
         Vector res = s->Intersect(nRay);
         
-        if (dist - res.GetLength() > 0.5f && i != nr) {
+        if (dist - res.GetLength() > 0.1f && i != nr) {
             shadow = true;
             break;
         }
@@ -36,7 +36,7 @@ Vector SpotLight::calculateLightingColor(std::vector<std::shared_ptr<Object>> ob
         //phong
         Vector l = (position - IntersectionPoint).Normalize();
 
-        Vector normal = Vector(1, 0, 0);
+        Vector normal = closestObject->GetIntersectionNormal();
 
         float shade = normal.dotProduct(l);
         float attenaution = 1.0 / (constAtten + linearAtten * dist + quadAtten * (dist * dist));
@@ -74,6 +74,7 @@ Vector SpotLight::calculateLightingColor(std::vector<std::shared_ptr<Object>> ob
     */
 
     
+
     bool inShadow = false;
     Ray ray = Ray(position, (IntersectionPoint - position).Normalize());
     //float dist = (position - IntersectionPoint).GetLength();
