@@ -13,7 +13,7 @@ public:
 		: Light(position, lightIntensity), constAtten(constAtten), linearAtten(linearAtten), quadAtten(quadAtten){}
 
 
-	virtual Vector calculateLightingColor(std::vector<std::shared_ptr<Object>> objects, Vector IntersectionPoint, std::shared_ptr<Object> closestObject, Vector cameraDir) override;
+	virtual Vector calculateLightingColor(std::vector<std::shared_ptr<Object>> objects, Vector IntersectionPoint, std::shared_ptr<Object> closestObject, Vector cameraDir, int nr) override;
 
 };
 

@@ -1,8 +1,9 @@
 #include "PointLight.h"
 
 
-Vector PointLight::calculateLightingColor(std::vector<std::shared_ptr<Object>> objects, Vector IntersectionPoint, std::shared_ptr<Object> closestObject, Vector cameraDir)
+Vector PointLight::calculateLightingColor(std::vector<std::shared_ptr<Object>> objects, Vector IntersectionPoint, std::shared_ptr<Object> closestObject, Vector cameraDir, int nr)
 {
+
     // Kierunek œwiat³a
     Vector lightDir = (position - IntersectionPoint).Normalize();
 
@@ -43,7 +44,7 @@ bool PointLight::isInShadow(std::vector<std::shared_ptr<Object>> objects, Vector
 {
     // Sprawdzenie, czy punkt przeciêcia znajduje siê w cieniu
     for (auto& obj : objects) {
-        Vector dist = obj->Intersect(Ray(intersectionPoint, position));
+        Vector dist = obj->Intersect(Ray(intersectionPoint, (position-intersectionPoint).Normalize()));
         if (dist.z > 0 && dist.GetLength() < (position - intersectionPoint).GetLength()) {
             return true; // Punkt przeciêcia jest w cieniu
         }

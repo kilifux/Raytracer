@@ -11,6 +11,7 @@ public:
     float Radius;
     //Vector colour = Vector(0.0f, 0.0f, 0.0f);
     Vector intersectionPoint;
+    Vector intersectionNormal;
 
     float t_max = 100.0f;
     float t_min = 0.01f;
@@ -22,6 +23,8 @@ public:
     Vector GetIntersectionPoint();
 
     Vector Intersect(Ray ray);
+
+    Vector GetIntersectionNormal();
 
     //bool Intersect(Ray ray, Vector& intersectionPoint);
 

@@ -81,6 +81,7 @@ Vector getColour(std::shared_ptr<Scene> scene, float x, float y, int resX, int r
     std::shared_ptr<Object> closestObject;
 
     Vector intersectionPoint;
+    int nr = 0;
 
     for (int i = 0; i < scene->objects.size(); i++) {
 
@@ -94,13 +95,14 @@ Vector getColour(std::shared_ptr<Scene> scene, float x, float y, int resX, int r
                 closestDistance = distance.z;
                 closestObject = obj;
                 intersectionPoint = obj->GetIntersectionPoint();
+                nr = i;
                 check = true;
             }
         }
     }
 
     if (check) {
-        color =  color + scene->Light(intersectionPoint, closestObject, ray.Direction.Normalize());
+        color =  color + scene->Light(intersectionPoint, closestObject, ray.Direction.Normalize(), nr);
     }
     else {
         color = Vector(0.2, 0.4, 0.85);
@@ -193,7 +195,7 @@ int main(int argv, char** args) {
 
     //make cameras
     std::shared_ptr<OrthographicCamera> orthoCam = std::make_shared<OrthographicCamera>(512, 512, Vector(0,0,5), Vector(0,0,-1), Vector(0,1,0));
-    std::shared_ptr<PerspectiveCamera> perspCam = std::make_shared<PerspectiveCamera>(512,512, 100.0f, 90.0f, Vector(0, 0, 5), Vector(0, 0, -1), Vector(0, 1, 0));
+    std::shared_ptr<PerspectiveCamera> perspCam = std::make_shared<PerspectiveCamera>(512,512, 100.0f, 75.0f, Vector(0, 0, 5), Vector(0, 0, -1), Vector(0, 1, 0));
     
     std::shared_ptr<Camera> camera = perspCam;
 
@@ -202,16 +204,16 @@ int main(int argv, char** args) {
 
     //make objects
     //dont know why but to move sphere up in orthographic camera you have to put -1 intead of 1
-    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(-0.25, -1.0f, 0), 0.5, Material(Vector(0.9f, 0.9f, 0.9f)));
-    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0.25, -0.75f, 0), 0.5, Material(Vector(0.2f, 0.7f, 0.9f)));
+    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(0, 0.0f, -2), 0.5, Material(Vector(0.9f, 0.9f, 0.9f)));
+    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0.25, 0.0f, -1), 0.5, Material(Vector(0.2f, 0.7f, 0.9f),128,1,0));
     std::shared_ptr<Plane> plane = std::make_shared<Plane>(Vector(0, -2, 0), Vector(0, 1, 0), Material(Vector(1.f, 1.f, 1.f)));
 
-    std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(8, 0, 0), Vector(-1, 0, 0), Material(Vector(1.0f, 0.0f, 0.0f))); //r
-    std::shared_ptr<Plane> P2 = std::make_shared<Plane>(Vector(-8, 0, 0), Vector(1, 0, 0), Material(Vector(0.0f, 1.0f, 0.0f))); //g
-    std::shared_ptr<Plane> P3 = std::make_shared<Plane>(Vector(0, 8, 0), Vector(0, -1, 0), Material(Vector(0.0f, 0.0f, 1.0f))); //b
-    std::shared_ptr<Plane> P4 = std::make_shared<Plane>(Vector(0, -8, 0), Vector(0, 1, 0), Material(Vector(0.0f, 1.0f, 1.0f))); //turkusowy
-    std::shared_ptr<Plane> P5 = std::make_shared<Plane>(Vector(0, 0, 32), Vector(0, 0, -1), Material(Vector(1.0f, 0.0f, 1.0f))); //fiolet
-    std::shared_ptr<Plane> P6 = std::make_shared<Plane>(Vector(0, 0, -32), Vector(0, 0, 1), Material(Vector(1.0f, 1.0f, 0.0f))); //zolty
+    std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(4, 0, 0), Vector(-1, 0, 0), Material(Vector(1.0f, 0.0f, 0.0f), 128, 1,0)); //r
+    std::shared_ptr<Plane> P2 = std::make_shared<Plane>(Vector(-4, 0, 0), Vector(1, 0, 0), Material(Vector(0.0f, 1.0f, 0.0f))); //g
+    std::shared_ptr<Plane> P3 = std::make_shared<Plane>(Vector(0, 4, 0), Vector(0, -1, 0), Material(Vector(0.0f, 0.0f, 1.0f))); //b
+    std::shared_ptr<Plane> P4 = std::make_shared<Plane>(Vector(0, -4, 0), Vector(0, 1, 0), Material(Vector(0.0f, 1.0f, 1.0f))); //turkusowy
+    std::shared_ptr<Plane> P5 = std::make_shared<Plane>(Vector(0, 0, 16), Vector(0, 0, -1), Material(Vector(1.0f, 0.0f, 1.0f))); //fiolet
+    std::shared_ptr<Plane> P6 = std::make_shared<Plane>(Vector(0, 0, -16), Vector(0, 0, 1), Material(Vector(1.0f, 1.0f, 0.0f))); //zolty
 
 
     //std::shared_ptr<Sphere> sphere3 = std::make_shared<Sphere>(Vector(-0.5, -0.75, -20), 0.5, Vector(0.5f, 0.2f, 0.1f));
@@ -220,22 +222,22 @@ int main(int argv, char** args) {
 
     scene->objects.push_back(sphere1);
     scene->objects.push_back(sphere2);
-    scene->objects.push_back(plane);
+    //scene->objects.push_back(plane);
 
-    //scene->objects.push_back(P1);
-    //scene->objects.push_back(P2);
-    //scene->objects.push_back(P3);
-    //scene->objects.push_back(P4);
-    //scene->objects.push_back(P5);
-    //scene->objects.push_back(P6);
+    scene->objects.push_back(P1);
+    scene->objects.push_back(P2);
+    scene->objects.push_back(P3);
+    scene->objects.push_back(P4);
+    scene->objects.push_back(P5);
+    scene->objects.push_back(P6);
 
 
     std::shared_ptr<SpotLight> spotLight = std::make_shared<SpotLight>(
-        Vector(1, 1, 0),
+        Vector(2, 1, 3),
         LightIntensity(1.0, 1.0, 1.0),
-        1.f,
-        0.05f,
-        0.012f
+        0.9f,
+        0.00005f,
+        0.000012f
     );
 
     std::shared_ptr<PointLight> pointLight = std::make_shared<PointLight>(Vector(3, 0, -3), LightIntensity(1.0, 1.0, 1.0), 0.5f);
@@ -256,7 +258,7 @@ int main(int argv, char** args) {
     Render(scene, tgaBuffer);
     //Render(scene, tgaBuffer, s2, s1);
     
-    tgaBuffer.WriteTGA("outputSpot.tga");
+    tgaBuffer.WriteTGA("outputPoint.tga");
 
 
     return 0;
