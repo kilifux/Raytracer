@@ -10,8 +10,8 @@ public:
 	float intensity;
 
 	float constAtten = 0.4f;
-	float linearAtten = 0.1f;
-	float quadAtten = 0.1f;
+	float linearAtten = 0.0001f;
+	float quadAtten = 0.0001f;
 
 
 	PointLight(Vector position, LightIntensity lightIntensity, float intensity) : Light(position, lightIntensity), intensity(intensity){}

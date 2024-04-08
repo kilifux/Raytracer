@@ -197,16 +197,16 @@ int main(int argv, char** args) {
     std::shared_ptr<OrthographicCamera> orthoCam = std::make_shared<OrthographicCamera>(512, 512, Vector(0,0,0), Vector(0,0,-1), Vector(0,0,0));
     std::shared_ptr<PerspectiveCamera> perspCam = std::make_shared<PerspectiveCamera>(512,512, 100.0f, 90.0f, Vector(0, 0, 5), Vector(0, 0, -1), Vector(0, 1, 0));
     
-    std::shared_ptr<Camera> camera = orthoCam;
+    std::shared_ptr<Camera> camera = perspCam;
 
     scene->camera = camera;
 
 
     //make objects
     //dont know why but to move sphere up in orthographic camera you have to put -1 intead of 1
-    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(-0.25, -1.0f, 0), 0.5, Material(Vector(0.9f, 0.9f, 0.9f)));
-    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0.25, -0.75f, 0), 0.5, Material(Vector(0.2f, 0.7f, 0.9f)));
-    std::shared_ptr<Plane> plane = std::make_shared<Plane>(Vector(0, -2, 0), Vector(0, 0, 1), Material(Vector(1.f, 1.f, 1.f)));
+    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(-0.25, 0.0f, 0), 0.5, Material(Vector(0.9f, 0.9f, 0.9f), 128, 1, 0));
+    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0.25, -0.25f, 0), 0.5, Material(Vector(0.2f, 0.7f, 0.9f), 128, 1 , 0));
+    std::shared_ptr<Plane> plane = std::make_shared<Plane>(Vector(0, 0, -5), Vector(0, 0, 1), Material(Vector(1.f, 1.f, 1.f), 128, 1, 0));
 
     std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(8, 0, 0), Vector(-1, 0, 0), Material(Vector(1.0f, 0.0f, 0.0f))); //r
     std::shared_ptr<Plane> P2 = std::make_shared<Plane>(Vector(-8, 0, 0), Vector(1, 0, 0), Material(Vector(0.0f, 1.0f, 0.0f))); //g
@@ -241,7 +241,7 @@ int main(int argv, char** args) {
     );
 
     //std::shared_ptr<Sphere> sphere3 = std::make_shared<Sphere>(Vector(1, 1, 4), 0.1, Material(Vector(1.f, 0.f, 0.f)));
-    std::shared_ptr<PointLight> pointLight = std::make_shared<PointLight>(Vector(-0.25, 0, 1), LightIntensity(1.0, 1.0, 1.0), 0.4f);
+    std::shared_ptr<PointLight> pointLight = std::make_shared<PointLight>(Vector(0, 1, 1), LightIntensity(1.0, 1.0, 1.0), 0.4f);
 
     //scene->objects.push_back(sphere3);
     scene->lights.push_back(pointLight);
@@ -259,7 +259,7 @@ int main(int argv, char** args) {
     Render(scene, tgaBuffer);
     //Render(scene, tgaBuffer, s2, s1);
     
-    tgaBuffer.WriteTGA("pointLight.tga");
+    tgaBuffer.WriteTGA("pointLight2.tga");
 
 
     return 0;

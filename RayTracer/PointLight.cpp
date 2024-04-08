@@ -32,22 +32,31 @@ Vector PointLight::calculateLightingColor(std::vector<std::shared_ptr<Object>> o
     } 
     else
     {
-        float attenuation = 1.0 / (constAtten + linearAtten * dist + quadAtten * (dist * dist));
-
+        
         // Obliczanie kierunku œwiat³a i normalizacja
-        Vector lightDir = (position - IntersectionPoint).Normalize();
+        Vector lightDir = (position - IntersectionPoint).Normalize(); //ok l
 
         // Obliczanie stopnia oœwietlenia (cosinus k¹ta miêdzy normaln¹ powierzchni a kierunkiem œwiat³a)
-        float shade = closestObject->GetNormalAt(IntersectionPoint).dotProduct(lightDir);
+        float shade = closestObject->GetNormalAt(IntersectionPoint).dotProduct(lightDir); //ok
+
+        float attenuation = 1.0 / (constAtten + linearAtten * dist + quadAtten * (dist * dist)); //ok
 
         // Obliczanie odbicia zwierciadlanego
-        Vector R = lightDir - closestObject->GetNormalAt(IntersectionPoint) * 2.0f * closestObject->GetNormalAt(IntersectionPoint).dotProduct(lightDir);
+        Vector R = lightDir - (closestObject->GetNormalAt(IntersectionPoint) * 2.0f * closestObject->GetNormalAt(IntersectionPoint).dotProduct(lightDir)); //ok
 
         // Obliczanie sk³adnika odbicia zwierciadlanego
-        float spec = std::pow(std::max(cameraDir.dotProduct(R), 0.0f), closestObject->GetMaterial().specularAmount);
+        float ss = -cameraDir.dotProduct(R);
+        float spec = 0;
+
+        if (-ss > 0) {
+            spec = pow(ss, closestObject->GetMaterial().specularAmount);
+        }
+        spec *= closestObject->GetMaterial().specularCoeff;
+        //float spec = std::pow(std::max(-cameraDir.dotProduct(R), 0.0f), closestObject->GetMaterial().specularAmount); //ok
 
         // Obliczanie sk³adnika odbicia œwiat³a
         Vector lightIntensityVector = Vector{ (float)lightIntensity.gRed(), (float)lightIntensity.gGreen() ,(float)lightIntensity.gBlue()};
+
 
         Vector diffuse = color * shade * attenuation;
 
