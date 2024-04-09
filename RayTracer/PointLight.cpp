@@ -18,7 +18,7 @@ Vector PointLight::calculateLightingColor(std::vector<std::shared_ptr<Object>> o
         std::shared_ptr<Object> obj = objects[i];
         distance = obj->Intersect(ray);
 
-        if (distance.z != -1000 && distance.z < 19.0f && distance.z > 0.1f) {
+        if (distance.z != -1000) {
 
             if (distance.z < closestDistance) {
                 closestDistance = distance.z;
@@ -28,9 +28,14 @@ Vector PointLight::calculateLightingColor(std::vector<std::shared_ptr<Object>> o
         }
     }
 
+    float difference = fabs((position - IntersectionPoint).GetLength() - (position - objects[nr]->GetIntersectionPoint()).GetLength());
+
     if (closestNumber != nr) {
         inShadow = true;
     } else if (closestNumber == nr && closestDistance != -1000 && closestDistance > 19.0f) {
+        //inShadow = true;
+    }
+    else if (closestNumber == nr && difference > 0.001f) {
         inShadow = true;
     }
     
