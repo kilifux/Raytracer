@@ -1,20 +1,19 @@
 #pragma once
 #include "Light.h"
+#include "Object.h"
 
-
-class PointLight : public Light {
-
+class PointLight : public Light
+{
 public:
+	float constAtten;
+	float linearAtten;
+	float quadAtten;
 
-	Vector color;
-	float intensity;
+	PointLight(Vector position, LightIntensity lightIntensity, float constAtten, float linearAtten, float quadAtten) 
+		: Light(position, lightIntensity), constAtten(constAtten), linearAtten(linearAtten), quadAtten(quadAtten){}
 
 
-	PointLight(Vector position, LightIntensity lightIntensity, float intensity) : Light(position, lightIntensity), intensity(intensity){}
-	PointLight(Vector position, LightIntensity lightIntensity) : Light(position, lightIntensity), intensity(1.f) {}
 	virtual Vector calculateLightingColor(std::vector<std::shared_ptr<Object>> objects, Vector IntersectionPoint, std::shared_ptr<Object> closestObject, Vector cameraDir, int nr) override;
-	Vector getDiffuse(Vector cameraPosition);
-	Vector getSpecular(Vector cameraPosition);
-	bool isInShadow(std::vector<std::shared_ptr<Object>> objects, Vector intersectionPoint);
+
 };
 

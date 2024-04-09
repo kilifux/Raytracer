@@ -1,53 +1,159 @@
 #include "PointLight.h"
-
+#include <algorithm> 
 
 Vector PointLight::calculateLightingColor(std::vector<std::shared_ptr<Object>> objects, Vector IntersectionPoint, std::shared_ptr<Object> closestObject, Vector cameraDir, int nr)
 {
 
-    // Kierunek œwiat³a
-    Vector lightDir = (position - IntersectionPoint).Normalize();
+    /*
+    bool shadow = false;
+    float dist = (position - IntersectionPoint).GetLength();
 
-    // Kierunek normalny w punkcie przeciêcia
-    Vector normal = Vector{ 1.f, 0.f, 0.f };    //closestObject->GetNormal(IntersectionPoint).Normalize();
+    Ray nRay = Ray(position, (IntersectionPoint-position).Normalize());
 
-    // Kierunek widzenia
-    Vector viewDir = (cameraDir * -1).Normalize();
-
-    // Obliczanie diffuse
-    float diffuseIntensity = std::max(0.0f, normal.dotProduct(lightDir));
-    Vector diffuseColor = closestObject->GetMaterial().GetColour() * diffuseIntensity;
-
-    // Obliczanie specular
-    Vector reflectDir = (lightDir - normal * (2 * lightDir.dotProduct(normal))).Normalize();
-    float specularIntensity = pow(std::max(0.0f, reflectDir.dotProduct(viewDir)), closestObject->GetMaterial().specularAmount);
-
-    Vector LightIntensityVector = Vector{ (float)lightIntensity.gRed(), (float)lightIntensity.gGreen() , (float)lightIntensity.gBlue() };
-    Vector mulTemp = LightIntensityVector * specularIntensity;
-
-   Vector specularColor = mulTemp * closestObject->GetMaterial().specularCoeff;
-
-    // Sprawdzenie cienia
-    bool shadow = isInShadow(objects, IntersectionPoint);
-
-    // Jeœli punkt przeciêcia znajduje siê w cieniu, zwracamy kolor t³a
-    if (shadow) {
-        return Vector(0.0f, 0.2f, 0.0f);
+    for (int i = 0; i < objects.size(); i++) {
+        std::shared_ptr<Object> s = objects[i];
+        Vector res = s->Intersect(nRay);
+        
+        if (dist - res.GetLength() > 0.1f && i != nr) {
+            shadow = true;
+            break;
+        }
+       
     }
 
-    // Kolor ostateczny to suma diffuse i specular
-    Vector finalColor = diffuseColor * intensity + specularColor * intensity;
+    Vector color = closestObject->GetMaterial().GetColour();
+    Vector ambient = color * 0.2f;
 
-    return finalColor;
-}
+    ambient.x *= lightIntensity.gRed();
+    ambient.y *= lightIntensity.gGreen();
+    ambient.z *= lightIntensity.gBlue();
 
-bool PointLight::isInShadow(std::vector<std::shared_ptr<Object>> objects, Vector intersectionPoint)
-{
-    // Sprawdzenie, czy punkt przeciêcia znajduje siê w cieniu
-    for (auto& obj : objects) {
-        Vector dist = obj->Intersect(Ray(intersectionPoint, (position-intersectionPoint).Normalize()));
-        if (dist.z > 0 && dist.GetLength() < (position - intersectionPoint).GetLength()) {
-            return true; // Punkt przeciêcia jest w cieniu
+    if (shadow) {
+        color = ambient;
+    }
+    else {
+
+        //phong
+        Vector l = (position - IntersectionPoint).Normalize();
+
+        Vector normal = closestObject->GetIntersectionNormal();
+
+        float shade = normal.dotProduct(l);
+        float attenaution = 1.0 / (constAtten + linearAtten * dist + quadAtten * (dist * dist));
+
+
+        Vector R = l - (normal * normal.dotProduct(l) * 2.0f);
+        float ss = -cameraDir.dotProduct(R);
+        float sp = -cameraDir.dotProduct(R);
+        float spec = 0;
+
+        if (-ss > 0) {
+            spec = pow(ss, closestObject->GetMaterial().specularAmount);
+        }
+
+        spec *= closestObject->GetMaterial().specularCoeff;
+
+        shade = std::clamp(shade * attenaution, 0.2f, 1.0f);
+        color.x *= shade * lightIntensity.gRed();
+        color.y *= shade * lightIntensity.gGreen();
+        color.z *= shade * lightIntensity.gBlue();
+
+        Vector specular = color;
+        specular.x *= spec * lightIntensity.gRed();
+        specular.y *= spec * lightIntensity.gGreen();
+        specular.z *= spec * lightIntensity.gBlue();
+
+        color = color + specular;
+    }
+    color.x = std::clamp(color.x, 0.0f, 1.0f);
+    color.y = std::clamp(color.y, 0.0f, 1.0f);
+    color.z = std::clamp(color.z, 0.0f, 1.0f);
+
+
+    return color;
+    */
+
+    
+
+    bool inShadow = false;
+    Ray ray = Ray(position, (IntersectionPoint - position).Normalize());
+    //float dist = (position - IntersectionPoint).GetLength();
+
+    float closestDistance = 1000;
+    int closestNumber = nr;
+    Vector distance = Vector(-1000, -1000, -1000);
+
+    for (int i = 0; i < objects.size(); i++) {
+
+        std::shared_ptr<Object> obj = objects[i];
+        distance = obj->Intersect(ray);
+
+        if (distance.z != -1000 && distance.z < 15.0f && distance.z > 0.1f) {
+
+            if (distance.z < closestDistance) {
+                closestDistance = distance.z;
+                closestNumber = i;
+            }
+
         }
     }
-    return false; // Punkt przeciêcia nie jest w cieniu
+
+    if (closestNumber != nr) {
+        inShadow = true;
+    } else if (closestNumber == nr && closestDistance != -1000 && closestDistance > 15.0f) {
+        inShadow = true;
+    }
+    
+    Vector color = closestObject->GetMaterial().GetColour();
+    Vector ambient = color * 0.2f;
+
+    ambient.x *= lightIntensity.gRed();
+    ambient.y *= lightIntensity.gGreen();
+    ambient.z *= lightIntensity.gBlue();
+
+    if (inShadow) {
+        color = ambient;
+    }
+    else {
+        //Vector color = closestObject->GetMaterial().GetColour();
+        
+        //phong
+        Vector l = (position - IntersectionPoint).Normalize();
+
+        Vector normal = closestObject->GetIntersectionNormal();
+
+        float shade = normal.dotProduct(l);
+        float attenaution = 1.0 / (constAtten + linearAtten * closestDistance + quadAtten * (closestDistance * closestDistance));
+
+
+        Vector R = l - (normal * normal.dotProduct(l) * 2.0f);
+        float ss = -cameraDir.dotProduct(R);
+        float sp = -cameraDir.dotProduct(R);
+        float spec = 0;
+
+        if (-ss > 0) {
+            spec = pow(ss, closestObject->GetMaterial().specularAmount);
+        }
+
+        spec *= closestObject->GetMaterial().specularCoeff;
+
+        shade = std::clamp(shade * attenaution, 0.2f, 1.0f);
+        color.x *= shade * lightIntensity.gRed();
+        color.y *= shade * lightIntensity.gGreen();
+        color.z *= shade * lightIntensity.gBlue();
+
+        Vector specular = color;
+        specular.x *= spec * lightIntensity.gRed();
+        specular.y *= spec * lightIntensity.gGreen();
+        specular.z *= spec * lightIntensity.gBlue();
+
+        color = color + specular;
+        
+    }
+    color.x = std::clamp(color.x, 0.0f, 1.0f);
+    color.y = std::clamp(color.y, 0.0f, 1.0f);
+    color.z = std::clamp(color.z, 0.0f, 1.0f);
+
+    return color;
+    
 }
