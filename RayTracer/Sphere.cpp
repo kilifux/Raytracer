@@ -10,6 +10,7 @@ Vector Sphere::GetIntersectionPoint()
 }
 
 Vector Sphere::GetIntersectionNormal() {
+    //intersectionNormal = intersectionNormal.Normalize();
     return intersectionNormal;
 }
 
