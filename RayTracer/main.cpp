@@ -24,7 +24,7 @@ Vector Reflect(Vector I, Vector N)
 Vector Refract(Vector I, Vector N, const float& ior)
 {
 
-
+    return Vector();
 }
 
 
@@ -90,10 +90,12 @@ void IntersectObjects(std::shared_ptr<Scene> scene, Ray ray, std::shared_ptr<Obj
     
     for (int k = 0; k < 1; k++) {
         if (closestObject->material.reflectFraction > 0.001f) {
-            ray = Ray(closestObject->intersectionPoint, Reflect(ray.Direction, closestObject->GetIntersectionNormal()));
+            Ray r = Ray(closestObject->GetIntersectionPoint(), Reflect(ray.Direction, closestObject->GetIntersectionNormal()));
 
             //nr = -1;
-            IntersectObjects(scene, ray, closestObject, nr);
+            IntersectObjects(scene, r, closestObject, nr);
+
+            //closestObject->material = Material(Vector(1.0f, 1.0f, 1.0f), 128, 1, 0, 0);
         }
     }
     
@@ -239,8 +241,8 @@ int main(int argv, char** args) {
     //std::shared_ptr<Plane> plane1 = std::make_shared<Plane>(Vector(-1, 0, 0), Vector(0,0,1), Material(Vector(0.1f, 0.1f, 0.1f)));
 
     scene->objects.push_back(sphere1);
-    scene->objects.push_back(sphere2);
-    scene->objects.push_back(sphere3);
+    //scene->objects.push_back(sphere2);
+    //scene->objects.push_back(sphere3);
     //scene->objects.push_back(plane);
 
     scene->objects.push_back(P1);
