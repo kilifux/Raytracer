@@ -25,9 +25,11 @@ Vector Refract(Vector I, Vector N, const float& ior)
 {
 
     float cosi = std::fmin(-I.dotProduct(N), 1.0f);
+
     Vector r_out_perp = (I + N * cosi) * ior;
     Vector r_out_parallel = N * -sqrt(fabs(1.0f - r_out_perp.GetLength() * r_out_perp.GetLength()));
     return r_out_perp + r_out_parallel;
+
 }
 
 
@@ -53,7 +55,7 @@ Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane) {
 
 
 
-void IntersectObjects(std::shared_ptr<Scene> scene, Ray ray, std::shared_ptr<Object>& closestObject, int& nr) {
+void IntersectObjects(std::shared_ptr<Scene> scene, Ray ray, std::shared_ptr<Object>& closestObject, int& nr, int& nr2) {
     
     float closestDistance = 1000;
     bool check = false;
@@ -65,7 +67,7 @@ void IntersectObjects(std::shared_ptr<Scene> scene, Ray ray, std::shared_ptr<Obj
         std::shared_ptr<Object> obj = scene->objects[i];
         Vector distance = obj->Intersect(ray); //distance to nie punkt przeciecia
 
-        if (distance.z != -1000.0f && nr != i) {
+        if (distance.z != -1000.0f && nr != i && nr2 != i) {
 
             if (distance.z < closestDistance) {
                 closestDistance = distance.z;
@@ -79,25 +81,25 @@ void IntersectObjects(std::shared_ptr<Scene> scene, Ray ray, std::shared_ptr<Obj
 
 
     
-    for (int k = 0; k < 2; k++) {
+    for (int k = 0; k < scene->reflectionNumber; k++) {
         if (closestObject->material.refractFraction > 0.001f) {
             //std::cout << closestObject->GetIntersectionPoint() << std::endl;
             Ray rr = Ray(closestObject->GetIntersectionPoint(), Refract(ray.Direction.Normalize(), closestObject->GetIntersectionNormal(), closestObject->material.refractFraction));
-;
-            //nr = -1;
-            IntersectObjects(scene, rr, closestObject, nr);
+            nr2 = nr;
+            nr = -1;
+            IntersectObjects(scene, rr, closestObject, nr, nr2);
         }
     }
     
 
 
     
-    for (int k = 0; k < 2; k++) {
+    for (int k = 0; k < scene->reflectionNumber; k++) {
         if (closestObject->material.reflectFraction > 0.001f) {
             Ray r = Ray(closestObject->GetIntersectionPoint(), Reflect(ray.Direction, closestObject->GetIntersectionNormal()));
-
-            //nr = -1;
-            IntersectObjects(scene, r, closestObject, nr);
+            nr2 = nr;
+            nr = -1;
+            IntersectObjects(scene, r, closestObject, nr, nr2);
 
             //closestObject->material = Material(Vector(1.0f, 1.0f, 1.0f), 128, 1, 0, 0);
         }
@@ -120,8 +122,9 @@ Vector getColour(std::shared_ptr<Scene> scene, float x, float y, int resX, int r
 
     Vector intersectionPoint;
     int nr = -1;
+    int nr2 = -1;
 
-    IntersectObjects(scene, ray, closestObject, nr);
+    IntersectObjects(scene, ray, closestObject, nr, nr2);
 
 
     if (closestObject->GetIntersectionPoint().z != NULL) {
@@ -227,10 +230,10 @@ int main(int argv, char** args) {
 
     //make objects
     //dont know why but to move sphere up in orthographic camera you have to put -1 intead of 1
-    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(-1.5f, -3.0f, -11.5), 1.0f, Material(Vector(0.5f, 0.5f, 0.5f), 128, 5, 2, 0));
+    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(-0.5f, -3.0f, -11.5), 1.0f, Material(Vector(0.5f, 0.5f, 0.5f), 128, 5, 2, 0));
     std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0, 0.75f, -1), 0.3, Material(Vector(1.0f, 1.0f, 1.0f), 128, 1, 0, 0));
-    std::shared_ptr<Sphere> sphere3 = std::make_shared<Sphere>(Vector(0.2f, 0.75f, -1), 0.3, Material(Vector(0.1f, 0.5f, 0.5f), 100, 1, 0, 0));
-    std::shared_ptr<Sphere> sphere4 = std::make_shared<Sphere>(Vector(1.5f, -3.0f, -9.5), 1.0f, Material(Vector(0.1f, 0.5f, 0.5f), 128, 1, 0, 0.7f));
+    std::shared_ptr<Sphere> sphere3 = std::make_shared<Sphere>(Vector(1.5f, -3.0f, -12.5), 1.0, Material(Vector(0.1f, 0.5f, 0.5f), 100, 1, 0, 1.05f));
+    std::shared_ptr<Sphere> sphere4 = std::make_shared<Sphere>(Vector(0.5f, -3.0f, -8.5), 1.0f, Material(Vector(0.1f, 0.5f, 0.5f), 128, 20, 0, 1.1f));
     std::shared_ptr<Plane> plane = std::make_shared<Plane>(Vector(0, -2, 0), Vector(0, 1, 0), Material(Vector(1.f, 1.f, 1.f)));
 
     std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(4, 0, 0), Vector(-1, 0, 0), Material(Vector(1.0f, 0.0f, 0.0f))); //r
@@ -247,7 +250,7 @@ int main(int argv, char** args) {
 
     scene->objects.push_back(sphere1);
     //scene->objects.push_back(sphere2);
-    //scene->objects.push_back(sphere3);
+    scene->objects.push_back(sphere3);
     scene->objects.push_back(sphere4);
 
     scene->objects.push_back(P1);
