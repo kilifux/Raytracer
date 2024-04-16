@@ -236,7 +236,7 @@ int main(int argv, char** args) {
     std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(-0.5f, -3.0f, -11.5), 1.0f, Material(Vector(0.5f, 0.5f, 0.5f), 128, 5, 2, 0));
     std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0, 0.75f, -1), 0.3, Material(Vector(1.0f, 1.0f, 1.0f), 128, 1, 0, 0));
     std::shared_ptr<Sphere> sphere3 = std::make_shared<Sphere>(Vector(1.5f, -3.0f, -12.5), 1.0, Material(Vector(0.1f, 0.5f, 0.5f), 100, 1, 0, 1.05f));
-    std::shared_ptr<Sphere> sphere4 = std::make_shared<Sphere>(Vector(1.5f, -3.0f, -8.5), 1.0f, Material(Vector(0.1f, 0.5f, 0.5f), 128, 20, 0, 0.5f));
+    std::shared_ptr<Sphere> sphere4 = std::make_shared<Sphere>(Vector(1.5f, -3.0f, -8.5), 1.0f, Material(Vector(0.1f, 0.5f, 0.5f), 128, 20, 0, 1.0f));
     std::shared_ptr<Plane> plane = std::make_shared<Plane>(Vector(0, -2, 0), Vector(0, 1, 0), Material(Vector(1.f, 1.f, 1.f)));
 
     std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(4, 0, 0), Vector(-1, 0, 0), Material(Vector(0.0f, 0.0f, 1.0f), 128, 1, 0, 0)); //blue
@@ -288,7 +288,7 @@ int main(int argv, char** args) {
     Render(scene, tgaBuffer);
     //Render(scene, tgaBuffer, s2, s1);
     
-    tgaBuffer.WriteTGA("outputPoint.tga");
+    tgaBuffer.WriteTGA("outputPoint1.tga");
 
 
     return 0;
