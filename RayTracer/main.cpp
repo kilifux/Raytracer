@@ -12,6 +12,25 @@
 #include "Scene.h"
 #include <vector>
 #include "PointLight.h"
+#include <algorithm>
+
+
+Vector Reflect(Vector I, Vector N)
+{
+    return I - N * 2 * I.dotProduct(N);
+}
+
+
+Vector Refract(Vector I, Vector N, const float& ior)
+{
+
+    float cosi = std::fmin(-I.dotProduct(N), 1.0f);
+
+    Vector r_out_perp = (I + N * cosi) * ior;
+    Vector r_out_parallel = N * -sqrt(fabs(1.0f - r_out_perp.GetLength() * r_out_perp.GetLength()));
+    return r_out_perp + r_out_parallel;
+
+}
 
 
 Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane) {
@@ -34,61 +53,21 @@ Vector color(Ray& r, Sphere& sphere, Triangle& triangle, Plane& plane) {
     return Vector(1.0, 1.0, 1.0) * (1.0 - t) + Vector(0.5, 0.7, 1.0f) * t;
 }
 
-/*
-Vector IntersectObjects(std::shared_ptr<Scene> scene, Ray ray) {
-    //std::cout << scene->objects.size() << std::endl;
-    float closestDistance = -1000;
-    bool check = false;
-    std::shared_ptr<Object> closestObject;
-    Vector dist;
 
-    for (int i = 0; i < scene->objects.size(); i++) {
-        std::shared_ptr<Object> obj = scene->objects[i];
-        dist = obj->Intersect(ray);
-        //std::cout << "dist " << dist << std::endl;
 
-        if (dist.z > -999) {
-            //std::cout << dist << " < " << closestDistance << std::endl;
-            if (dist.GetLength() > closestDistance) {
-                //std::cout << "change closest " << std::endl;
-                closestDistance = dist.GetLength();
-                closestObject = obj;
-                check = true;
-            }
-        }
-    }
-
-    Vector color = { 0, 0, 0 };
-
-    if (check) {
-        color = color + scene->Light(dist, closestObject, ray.Direction.Normalize());
-        return color;
-    }
-    else {
-        return Vector(0.2, 0.4, 0.85);
-    }
-}
-*/
-
-Vector getColour(std::shared_ptr<Scene> scene, float x, float y, int resX, int resY) {
-
-    Vector color = { 0, 0, 0 };
-    Ray ray = scene->camera->GenerateRay(x, y);
-
+void IntersectObjects(std::shared_ptr<Scene> scene, Ray ray, std::shared_ptr<Object>& closestObject, int& nr, int& nr2) {
+    
     float closestDistance = 1000;
     bool check = false;
-    std::shared_ptr<Object> closestObject;
-
+    bool check2 = false;
     Vector intersectionPoint;
-    int nr = 0;
 
     for (int i = 0; i < scene->objects.size(); i++) {
 
         std::shared_ptr<Object> obj = scene->objects[i];
         Vector distance = obj->Intersect(ray); //distance to nie punkt przeciecia
-        //std::cout << obj->GetIntersectionPoint() << std::endl; //to jest punkt przeciecia
-        
-        if (distance.z != -1000.0f) {
+
+        if (distance.z != -1000.0f && nr != i && nr2 != i) {
 
             if (distance.z < closestDistance) {
                 closestDistance = distance.z;
@@ -100,8 +79,59 @@ Vector getColour(std::shared_ptr<Scene> scene, float x, float y, int resX, int r
         }
     }
 
-    if (check) {
-        color =  color + scene->Light(intersectionPoint, closestObject, ray.Direction.Normalize(), nr);
+
+    if (scene->reflectionNumber > 0) {
+
+        //scene->reflectionNumber = scene->reflectionNumber - 1;
+        for (int k = 0; k < scene->reflectionNumber; k++) {
+            if (closestObject->material.refractFraction > 0.001f) {
+                //std::cout << closestObject->GetIntersectionPoint() << std::endl;
+                Ray rr = Ray(closestObject->GetIntersectionPoint(), Refract(ray.Direction.Normalize(), closestObject->GetIntersectionNormal(), closestObject->material.refractFraction));
+                nr2 = nr;
+                nr = -1;
+                IntersectObjects(scene, rr, closestObject, nr, nr2);
+            }
+        }
+
+
+
+
+        for (int k = 0; k < scene->reflectionNumber; k++) {
+            if (closestObject->material.reflectFraction > 0.001f) {
+                Ray r = Ray(closestObject->GetIntersectionPoint(), Reflect(ray.Direction, closestObject->GetIntersectionNormal()));
+                nr2 = nr;
+                nr = -1;
+                IntersectObjects(scene, r, closestObject, nr, nr2);
+
+                //closestObject->material = Material(Vector(1.0f, 1.0f, 1.0f), 128, 1, 0, 0);
+            }
+        }
+    }
+    
+
+
+}
+
+
+Vector getColour(std::shared_ptr<Scene> scene, float x, float y, int resX, int resY) {
+
+    Vector color = { 0, 0, 0 };
+    Ray ray = scene->camera->GenerateRay(x, y);
+
+    float closestDistance = 1000;
+    bool check = false;
+    bool check2 = false;
+    std::shared_ptr<Object> closestObject;
+
+    Vector intersectionPoint;
+    int nr = -1;
+    int nr2 = -1;
+    scene->reflectionNumber = 2;
+    IntersectObjects(scene, ray, closestObject, nr, nr2);
+
+
+    if (closestObject->GetIntersectionPoint().z != NULL) {
+        color =  color + scene->Light(closestObject->GetIntersectionPoint(), closestObject, ray.Direction.Normalize(), nr);
     }
     else {
         color = Vector(0.2, 0.4, 0.85);
@@ -203,17 +233,18 @@ int main(int argv, char** args) {
 
     //make objects
     //dont know why but to move sphere up in orthographic camera you have to put -1 intead of 1
-    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(0, 0.0f, -1.5), 0.5, Material(Vector(0.5f, 0.5f, 0.5f)));
-    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0, 0.75f, -1), 0.3, Material(Vector(0.2f, 0.3f, 0.9f),128,1,0));
-    std::shared_ptr<Sphere> sphere3 = std::make_shared<Sphere>(Vector(0.2f, 0.75f, -1), 0.3, Material(Vector(0.1f, 0.5f, 0.5f), 100, 1, 0));
+    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(-0.5f, -3.0f, -11.5), 1.0f, Material(Vector(0.5f, 0.5f, 0.5f), 128, 5, 2, 0));
+    std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0, 0.75f, -1), 0.3, Material(Vector(1.0f, 1.0f, 1.0f), 128, 1, 0, 0));
+    std::shared_ptr<Sphere> sphere3 = std::make_shared<Sphere>(Vector(1.5f, -3.0f, -12.5), 1.0, Material(Vector(0.1f, 0.5f, 0.5f), 100, 1, 0, 1.05f));
+    std::shared_ptr<Sphere> sphere4 = std::make_shared<Sphere>(Vector(1.5f, -3.0f, -8.5), 1.0f, Material(Vector(0.1f, 0.5f, 0.5f), 128, 20, 0, 1.0f));
     std::shared_ptr<Plane> plane = std::make_shared<Plane>(Vector(0, -2, 0), Vector(0, 1, 0), Material(Vector(1.f, 1.f, 1.f)));
 
-    std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(4, 0, 0), Vector(-1, 0, 0), Material(Vector(1.0f, 0.0f, 0.0f))); //r
-    std::shared_ptr<Plane> P2 = std::make_shared<Plane>(Vector(-4, 0, 0), Vector(1, 0, 0), Material(Vector(0.0f, 1.0f, 0.0f))); //g
-    std::shared_ptr<Plane> P3 = std::make_shared<Plane>(Vector(0, 4, 0), Vector(0, -1, 0), Material(Vector(0.0f, 0.0f, 1.0f))); //b
-    std::shared_ptr<Plane> P4 = std::make_shared<Plane>(Vector(0, -4, 0), Vector(0, 1, 0), Material(Vector(0.0f, 1.0f, 1.0f))); //turkusowy
-    std::shared_ptr<Plane> P5 = std::make_shared<Plane>(Vector(0, 0, 16), Vector(0, 0, -1), Material(Vector(1.0f, 0.0f, 1.0f))); //fiolet
-    std::shared_ptr<Plane> P6 = std::make_shared<Plane>(Vector(0, 0, -16), Vector(0, 0, 1), Material(Vector(1.0f, 1.0f, 0.0f))); //zolty
+    std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(4, 0, 0), Vector(-1, 0, 0), Material(Vector(0.0f, 0.0f, 1.0f), 128, 1, 0, 0)); //blue
+    std::shared_ptr<Plane> P2 = std::make_shared<Plane>(Vector(-4, 0, 0), Vector(1, 0, 0), Material(Vector(1.0f, 0.0f, 0.0f), 128, 1, 0, 0)); //red
+    std::shared_ptr<Plane> P3 = std::make_shared<Plane>(Vector(0, 4, 0), Vector(0, -1, 0), Material(Vector(0.0f, 0.0f, 0.0f), 128, 1, 0, 0)); //black
+    std::shared_ptr<Plane> P4 = std::make_shared<Plane>(Vector(0, -4, 0), Vector(0, 1, 0), Material(Vector(0.5, 0.5f, 0.5f), 128, 1, 0, 0)); //turkusowy
+    std::shared_ptr<Plane> P5 = std::make_shared<Plane>(Vector(0, 0, 16), Vector(0, 0, -1), Material(Vector(0.5f, 0.5f, 0.5f), 128, 1, 0, 0)); //fiolet
+    std::shared_ptr<Plane> P6 = std::make_shared<Plane>(Vector(0, 0, -16), Vector(0, 0, 1), Material(Vector(0.5f, 0.5f, 0.5f), 128, 1, 0, 0)); //zolty
 
 
     //std::shared_ptr<Sphere> sphere3 = std::make_shared<Sphere>(Vector(-0.5, -0.75, -20), 0.5, Vector(0.5f, 0.2f, 0.1f));
@@ -221,9 +252,9 @@ int main(int argv, char** args) {
     //std::shared_ptr<Plane> plane1 = std::make_shared<Plane>(Vector(-1, 0, 0), Vector(0,0,1), Material(Vector(0.1f, 0.1f, 0.1f)));
 
     scene->objects.push_back(sphere1);
-    scene->objects.push_back(sphere2);
-    scene->objects.push_back(sphere3);
-    //scene->objects.push_back(plane);
+    //scene->objects.push_back(sphere2);
+    //scene->objects.push_back(sphere3);
+    scene->objects.push_back(sphere4);
 
     scene->objects.push_back(P1);
     scene->objects.push_back(P2);
@@ -234,9 +265,9 @@ int main(int argv, char** args) {
 
 
     std::shared_ptr<PointLight> spotLight = std::make_shared<PointLight>(
-        Vector(0, 2, 2),
+        Vector(0, 3, -10),
         LightIntensity(1.0, 1.0, 1.0),
-        0.5f,
+        0.7f,
         0.05f,
         0.00001f
     );
@@ -257,7 +288,7 @@ int main(int argv, char** args) {
     Render(scene, tgaBuffer);
     //Render(scene, tgaBuffer, s2, s1);
     
-    tgaBuffer.WriteTGA("outputPoint.tga");
+    tgaBuffer.WriteTGA("outputPoint1.tga");
 
 
     return 0;

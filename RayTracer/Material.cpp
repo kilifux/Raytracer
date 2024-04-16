@@ -10,12 +10,13 @@ Material::Material(Vector color)
 	this->colour = color;
 }
 
-Material::Material(Vector colour, float specularAmount, float specularCoeff, float reflectFraction)
+Material::Material(Vector colour, float specularAmount, float specularCoeff, float reflectFraction, float refractFraction)
 {
 	this->colour = colour;
 	this->specularAmount = specularAmount;
 	this->specularCoeff = specularCoeff;
 	this->reflectFraction = reflectFraction;
+	this->refractFraction = refractFraction;
 }
 
 void Material::SetColour(Vector colour)
