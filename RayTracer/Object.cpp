@@ -22,3 +22,7 @@ Material Object::GetMaterial()
 Vector Object::GetIntersectionPoint() {
 	return intersectionPoint;
 }
+
+Vector Object::GetIntersectionNormal() {
+	return intersectionNormal;
+}

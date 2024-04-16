@@ -13,6 +13,6 @@ public:
 
 	std::shared_ptr<Camera> camera;
 
-	Vector Light(Vector IntersectionPoint, std::shared_ptr<Object> closestObject, Vector cameraDir);
+	Vector Light(Vector IntersectionPoint, std::shared_ptr<Object> closestObject, Vector cameraDir, int nr);
 };
 

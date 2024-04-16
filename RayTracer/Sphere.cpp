@@ -9,6 +9,10 @@ Vector Sphere::GetIntersectionPoint()
     return intersectionPoint;
 }
 
+Vector Sphere::GetIntersectionNormal() {
+    return intersectionNormal;
+}
+
 Vector Sphere::Intersect(Ray ray) {
 
     Vector oc = ray.Origin - Center;
@@ -25,6 +29,8 @@ Vector Sphere::Intersect(Ray ray) {
 
     Vector one = Vector(-1000, -1000, -1000);
     Vector two = Vector(-1000, -1000, -1000);
+    intersectionPoint = Vector();
+    intersectionNormal = Vector();
 
     if (discriminant > 0.001f)
     {
@@ -47,10 +53,12 @@ Vector Sphere::Intersect(Ray ray) {
 
         if (temp1 < temp2) {
             intersectionPoint = one;
+            intersectionNormal = (intersectionPoint - Center).Normalize();
             return Vector(temp1, temp1, temp1);
         }
         else {
             intersectionPoint = two;
+            intersectionNormal = (intersectionPoint - Center).Normalize();
             return Vector(temp2, temp2, temp2);
         }
     }
@@ -78,10 +86,12 @@ Vector Sphere::Intersect(Ray ray) {
 
         if (temp1 < temp2) {
             intersectionPoint = one;
+            intersectionNormal = (intersectionPoint - Center).Normalize();
             return Vector(temp1, temp1, temp1);
         }
         else {
             intersectionPoint = two;
+            intersectionNormal = (intersectionPoint - Center).Normalize();
             return Vector(temp2, temp2, temp2);
         }
     }

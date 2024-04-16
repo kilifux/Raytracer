@@ -15,10 +15,11 @@ Vector Plane::Intersect(Ray ray) {
         return Vector(-1000,-1000,-1000);
     }
 
-    float t = (center - ray.Origin).dotProduct(normal) / ndotD;
+    float t = (Center - ray.Origin).dotProduct(normal) / ndotD;
     if (t > 0 && (this->range == 0.0f || t < this->range)) {
 
         intersectionPoint = ray.Origin + (ray.Direction * t);
+        intersectionNormal = normal;
         return Vector(t, t, t);
     }
 
@@ -26,3 +27,6 @@ Vector Plane::Intersect(Ray ray) {
     return Vector(-1000, -1000, -1000);
 }
 
+Vector Plane::GetIntersectionNormal() {
+    return intersectionNormal;
+}

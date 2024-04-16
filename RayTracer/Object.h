@@ -8,11 +8,13 @@ public:
 	Vector Center;
 	Vector intersectionPoint;
 	Material material;
+	Vector intersectionNormal;
 
 	Object(Material material);
 	virtual Vector Intersect(Ray ray);
 
 	Material GetMaterial();
 	virtual Vector GetIntersectionPoint();
+	virtual Vector GetIntersectionNormal();
 };
 
