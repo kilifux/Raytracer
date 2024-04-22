@@ -146,7 +146,7 @@ Vector getColour(std::shared_ptr<Scene> scene, Ray ray, int depth) {
 
         Vector indirectLighting = Vector(0, 0, 0);
 
-        int numRays = 1;
+        int numRays = 16;
         Vector Nt, Nb;
         createCoordinateSystem(normal, Nt, Nb);
         float pdf = 1 / (2 * M_PI);
@@ -164,16 +164,18 @@ Vector getColour(std::shared_ptr<Scene> scene, Ray ray, int depth) {
 
             Ray indirectRayTest(intersectionPoint + sampleWorld, sampleWorld);
 
-            indirectLighting = indirectLighting + getColour(scene, indirectRayTest, depth - 1) * r1;
+            indirectLighting = indirectLighting + (getColour(scene, indirectRayTest, depth - 1) * r1) / pdf;
         }
 
         indirectLighting = indirectLighting / numRays;
             
-        Vector finalLight = (indirectLighting + directLight);
+        Vector finalLight = (directLight / M_PI + indirectLighting * 2);
                     
-        finalColor.x = finalLight.x * colorMaterial.x / 1.4;
-        finalColor.y = finalLight.y * colorMaterial.y / 1.4;
-        finalColor.z = finalLight.z * colorMaterial.z / 1.4;
+        //Vector albedo{ 0.90, 0.90, 0.90 };
+
+        finalColor.x = finalLight.x * colorMaterial.x / 1.25;
+        finalColor.y = finalLight.y * colorMaterial.y / 1.25;
+        finalColor.z = finalLight.z * colorMaterial.z / 1.25;
        
         return finalColor;
 
@@ -255,8 +257,8 @@ int main(int argv, char** args) {
     std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0, 0.75f, -1), 0.3, Material(Vector(1.0f, 1.0f, 1.0f), 128, 1, 0, 0));
     std::shared_ptr<Sphere> sphere3 = std::make_shared<Sphere>(Vector(1.5f, -3.0f, -12.5), 1.0, Material(Vector(0.1f, 0.5f, 0.5f), 100, 1, 0, 1.05f));
     std::shared_ptr<Sphere> sphere4 = std::make_shared<Sphere>(Vector(2.f, -3.0f, -8.5), 1.0f, Material(Vector(1.f, 1.f, 1.f), 128, 1, 0, 1.2f));
-    std::shared_ptr<Sphere> sphere5 = std::make_shared<Sphere>(Vector(-1.8f, -2.5f, -12.5), 1.3f, Material(Vector(1.f, 1.f, 1.f), 0, 0, 0, 0.f));
-    std::shared_ptr<Sphere> sphere6 = std::make_shared<Sphere>(Vector(2.f, -2.5f, -8.5), 1.3f, Material(Vector(1.f, 1.f, 1.f), 0, 0, 0, 0.f));
+    std::shared_ptr<Sphere> sphere5 = std::make_shared<Sphere>(Vector(-1.8f, -2.5f, -12.5), 1.3f, Material(Vector(1.f, 1.f, 1.f), 128, 1, 1, 0.f));
+    std::shared_ptr<Sphere> sphere6 = std::make_shared<Sphere>(Vector(2.f, -2.5f, -8.5), 1.3f, Material(Vector(1.f, 1.f, 1.f), 128, 1, 0, 1.2f));
     std::shared_ptr<Plane> plane = std::make_shared<Plane>(Vector(0, -2, 0), Vector(0, 1, 0), Material(Vector(1.f, 1.f, 1.f)));
 
     std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(4, 0, 0), Vector(-1, 0, 0), Material(Vector(0.0f, 0.0f, 1.f), 128, 1, 0, 0)); //blue
@@ -287,7 +289,7 @@ int main(int argv, char** args) {
 
 
     std::shared_ptr<PointLight> spotLight = std::make_shared<PointLight>(
-        Vector(0, 3, -10),
+        Vector(0, 0, -2),
         LightIntensity(1.0, 1.0, 1.0),
         0.7f,
         0.05f,
@@ -300,13 +302,13 @@ int main(int argv, char** args) {
         0.7f,
         0.05f,
         0.00001f,
-        Vector(-2, 8, -6),
-        Vector(8, 0, -6),
+        Vector(-2, 3, -6),
+        Vector(6, 0, 0),
         3
         );
 
     //scene->lights.push_back(spotLight);
-    //scene->lights.push_back(spotLight);
+   //scene->lights.push_back(spotLight);
     scene->lights.push_back(surfaceLight);
     //scene->objects.push_back(plane1);
     //scene->objects.push_back(sphere3);
