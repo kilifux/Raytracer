@@ -141,6 +141,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="PointLight.cpp" />
+    <ClCompile Include="SurfaceLight.cpp" />
     <ClCompile Include="TGABuffer.cpp" />
     <ClCompile Include="Triangle.cpp" />
     <ClCompile Include="Vector.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="PointLight.h" />
+    <ClInclude Include="SurfaceLight.h" />
     <ClInclude Include="TGABuffer.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="Vector.h" />

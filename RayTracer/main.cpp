@@ -12,6 +12,7 @@
 #include "Scene.h"
 #include <vector>
 #include "PointLight.h"
+#include "SurfaceLight.h"
 #include <algorithm>
 #include <random>
 
@@ -145,7 +146,7 @@ Vector getColour(std::shared_ptr<Scene> scene, Ray ray, int depth) {
 
         Vector indirectLighting = Vector(0, 0, 0);
 
-        int numRays = 8;
+        int numRays = 1;
         Vector Nt, Nb;
         createCoordinateSystem(normal, Nt, Nb);
         float pdf = 1 / (2 * M_PI);
@@ -211,9 +212,15 @@ void Render(std::shared_ptr<Scene> scene, TGABuffer& tgaBuffer)
 {
     Ray ray = Ray();
     Vector colour = Vector(0, 0, 0);
-
+    int forProgress = 0;
     std::cout << "render" << std::endl;
     for (int x = 0; x < scene->camera->GetResolutionX(); x++) {
+
+        if (x % (scene->camera->GetResolutionX() / 10) == 0) {
+            //system("CLS");
+            std::cout << forProgress << "0% gotowe\n";
+            forProgress++;
+        }
         for (int y = 0; y < scene->camera->GetResolutionY(); y++) {
 
             colour = Sampling(scene, x, y, scene->camera->GetResolutionX(), scene->camera->GetResolutionY(), 5, 0.0f, 0.0f, 0.5f);
@@ -287,8 +294,20 @@ int main(int argv, char** args) {
         0.00001f
     );
 
+    std::shared_ptr<SurfaceLight> surfaceLight = std::make_shared<SurfaceLight>(
+        Vector(-2, 0, -6),
+        LightIntensity(1.0, 1.0, 1.0),
+        0.7f,
+        0.05f,
+        0.00001f,
+        Vector(-2, 8, -6),
+        Vector(8, 0, -6),
+        3
+        );
+
     //scene->lights.push_back(spotLight);
-    scene->lights.push_back(spotLight);
+    //scene->lights.push_back(spotLight);
+    scene->lights.push_back(surfaceLight);
     //scene->objects.push_back(plane1);
     //scene->objects.push_back(sphere3);
 
