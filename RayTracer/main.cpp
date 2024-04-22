@@ -95,36 +95,29 @@ void IntersectObjects(std::shared_ptr<Scene> scene, Ray ray, std::shared_ptr<Obj
 
 }
 
-Vector getRandomDirectionHemisphere(Vector& normal) {
-    static std::mt19937 generator(std::random_device{}());
-    static std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+void createCoordinateSystem(Vector& N, Vector& Nt, Vector& Nb)
+{
+    if (std::fabs(N.x) > std::fabs(N.y))
+        Nt = Vector(N.z, 0, -N.x) / std::sqrtf(N.x * N.x + N.z * N.z);
+    else
+        Nt = Vector(0, -N.z, N.y) / std::sqrtf(N.y * N.y + N.z * N.z);
 
-    // Generowanie losowego kierunku w p�kuli za pomoc� r�wnomiernego rozk�adu punkt�w na sferze
-    float u1 = distribution(generator);
-    float u2 = distribution(generator);
-
-    float r = sqrt(1.0f - u1 * u1); // promie� ko�a w p�kuli
-    float phi = 2 * M_PI * u2; // k�t fi w zakresie [0, 2*PI]
-
-    // Konwersja wsp�rz�dnych sferycznych na kartezja�skie
-    float x = r * cos(phi);
-    float y = r * sin(phi);
-    float z = u1;
-
-    // Obliczenie kierunku na podstawie normalnej powierzchni
-    Vector tangent, bitangent;
-    if (fabs(normal.x) < fabs(normal.y)) {
-        tangent = Vector(1.0f, 0.0f, 0.0f);
-    }
-    else {
-        tangent = Vector(0.0f, 1.0f, 0.0f);
-    }
-    tangent = (tangent - normal * normal.dotProduct(tangent)).Normalize();
-    bitangent = normal.cross(tangent).Normalize();
-
-    // Wygenerowanie losowego wektora w lokalnym uk�adzie wsp�rz�dnych
-    return (tangent * x + bitangent * y + normal * z).Normalize();
+    Nb = N.cross(Nt);
 }
+
+
+Vector uniformSmapleHemisphere(const float& r1, const float& r2)
+{
+    float sinTheta = std::sqrtf(1 - r1 * r1);
+    float phi = 2 * M_PI * r2;
+    float x = sinTheta * std::cosf(phi);
+    float z = sinTheta * std::sinf(phi);
+    return Vector{ x, r1, z };
+}
+
+
+std::default_random_engine generator;
+std::uniform_real_distribution<float> distribution(0, 1);
 
 Vector getColour(std::shared_ptr<Scene> scene, Ray ray, int depth) {
 
@@ -150,26 +143,37 @@ Vector getColour(std::shared_ptr<Scene> scene, Ray ray, int depth) {
 
         directLight = scene->Light(closestObject->GetIntersectionPoint(), closestObject, ray.Direction.Normalize(), nr);
 
-        int numRays = 1;
         Vector indirectLighting = Vector(0, 0, 0);
-            
+
+        int numRays = 8;
+        Vector Nt, Nb;
+        createCoordinateSystem(normal, Nt, Nb);
+        float pdf = 1 / (2 * M_PI);
+        
         for (int i = 0; i < numRays; ++i) {
-            Vector randomDirection = getRandomDirectionHemisphere(normal);
-            Ray indirectRay(intersectionPoint, randomDirection);
-            indirectLighting = indirectLighting + getColour(scene, indirectRay, depth - 1);
+            float r1 = distribution(generator);
+            float r2 = distribution(generator);
+
+            Vector sample = uniformSmapleHemisphere(r1, r2);
+            Vector sampleWorld(
+                sample.x * Nb.x + sample.y * normal.x + sample.z * Nt.x,
+                sample.x * Nb.y + sample.y * normal.y + sample.z * Nt.y,
+                sample.x * Nb.z + sample.y * normal.z + sample.z * Nt.z
+                );
+
+            Ray indirectRayTest(intersectionPoint + sampleWorld, sampleWorld);
+
+            indirectLighting = indirectLighting + getColour(scene, indirectRayTest, depth - 1) * r1;
         }
 
         indirectLighting = indirectLighting / numRays;
             
         Vector finalLight = (indirectLighting + directLight);
-        //Vector finalLight = (directLight);
-            
-            
+                    
         finalColor.x = finalLight.x * colorMaterial.x / 1.4;
         finalColor.y = finalLight.y * colorMaterial.y / 1.4;
         finalColor.z = finalLight.z * colorMaterial.z / 1.4;
        
-        
         return finalColor;
 
     }
@@ -192,38 +196,6 @@ Vector Sampling(std::shared_ptr<Scene> scene, int x, int y, int resX, int resY, 
     tempColours.push_back(getColour(scene, scene->camera->GenerateRay(x + (centreX + offset), y + (centreY - offset)), depth));
     tempColours.push_back(getColour(scene, scene->camera->GenerateRay(x + (centreX - offset), y + (centreY + offset)), depth));
     tempColours.push_back(getColour(scene, scene->camera->GenerateRay(x + (centreX + offset), y + (centreY + offset)), depth));
-
-    //if (maxSteps > 1) {
-    //    if ((tempColours[0] - centreColour).GetLength() > 0.4) {
-    //        //std::cout << "0" << std::endl;
-    //        tempColours[0] = Sampling(scene, x, y, resX, resY, maxSteps - 1, -offset * 0.5f, -offset * 0.5f, offset * 0.5f);
-    //    }
-    //    else {
-    //        tempColours[0] = (Vector)(tempColours[0] + centreColour) * 0.5;
-    //    }
-    //    if ((tempColours[1] - centreColour).GetLength() > 0.4) {
-    //        //std::cout << "1" << std::endl;
-    //        tempColours[1] = Sampling(scene, x, y, resX, resY, maxSteps - 1, +offset * 0.5f, -offset * 0.5f, offset * 0.5f);
-    //    }
-    //    else {
-    //        tempColours[1] = (Vector)(tempColours[1] + centreColour) * 0.5;
-    //    }
-    //    if ((tempColours[2] - centreColour).GetLength() > 0.4) {
-    //        //std::cout << "2" << std::endl;
-    //        tempColours[2] = Sampling(scene, x, y, resX, resY, maxSteps - 1, -offset * 0.5f, +offset * 0.5f, offset * 0.5f);
-    //    }
-    //    else {
-    //        tempColours[2] = (Vector)(tempColours[2] + centreColour) * 0.5;
-    //    }
-    //    if ((tempColours[3] - centreColour).GetLength() > 0.4) {
-    //        //std::cout << "3" << std::endl;
-    //        tempColours[3] = Sampling(scene, x, y, resX, resY, maxSteps - 1, +offset * 0.5f, +offset * 0.5f, offset * 0.5f);
-    //    }
-    //    else {
-    //        tempColours[3] = (Vector)(tempColours[3] + centreColour) * 0.5;
-    //    }
-    //}
-
 
     for (auto c : tempColours) {
         colour = colour + c;
@@ -280,8 +252,8 @@ int main(int argv, char** args) {
     std::shared_ptr<Sphere> sphere6 = std::make_shared<Sphere>(Vector(2.f, -2.5f, -8.5), 1.3f, Material(Vector(1.f, 1.f, 1.f), 0, 0, 0, 0.f));
     std::shared_ptr<Plane> plane = std::make_shared<Plane>(Vector(0, -2, 0), Vector(0, 1, 0), Material(Vector(1.f, 1.f, 1.f)));
 
-    std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(4, 0, 0), Vector(-1, 0, 0), Material(Vector(0.0f, 0.0f, 0.9f), 128, 1, 0, 0)); //blue
-    std::shared_ptr<Plane> P2 = std::make_shared<Plane>(Vector(-4, 0, 0), Vector(1, 0, 0), Material(Vector(0.9f, 0.0f, 0.0f), 128, 1, 0, 0)); //red
+    std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(4, 0, 0), Vector(-1, 0, 0), Material(Vector(0.0f, 0.0f, 1.f), 128, 1, 0, 0)); //blue
+    std::shared_ptr<Plane> P2 = std::make_shared<Plane>(Vector(-4, 0, 0), Vector(1, 0, 0), Material(Vector(1.f, 0.0f, 0.0f), 128, 1, 0, 0)); //red
     std::shared_ptr<Plane> P3 = std::make_shared<Plane>(Vector(0, 4, 0), Vector(0, -1, 0), Material(Vector(0.9f, 0.9f, 0.9f), 128, 1, 0, 0)); //black
     std::shared_ptr<Plane> P4 = std::make_shared<Plane>(Vector(0, -4, 0), Vector(0, 1, 0), Material(Vector(0.9, 0.9f, 0.9f), 128, 1, 0, 0)); //turkusowy
     std::shared_ptr<Plane> P5 = std::make_shared<Plane>(Vector(0, 0, 16), Vector(0, 0, -1), Material(Vector(0.9f, 0.9f, 0.9f), 128, 1, 0, 0)); //fiolet
@@ -308,7 +280,7 @@ int main(int argv, char** args) {
 
 
     std::shared_ptr<PointLight> spotLight = std::make_shared<PointLight>(
-        Vector(0, 3, -8),
+        Vector(0, 3, -10),
         LightIntensity(1.0, 1.0, 1.0),
         0.7f,
         0.05f,
