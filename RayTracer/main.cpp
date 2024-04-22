@@ -63,7 +63,7 @@ void IntersectObjects(std::shared_ptr<Scene> scene, Ray ray, std::shared_ptr<Obj
         return;
 
 
-    if (scene->reflectionNumber > 0) {
+    if (scene->reflectionNumber > 0 ) {
 
         //scene->reflectionNumber = scene->reflectionNumber - 1;
         for (int k = 0; k < scene->reflectionNumber; k++) {
@@ -99,14 +99,14 @@ Vector getRandomDirectionHemisphere(Vector& normal) {
     static std::mt19937 generator(std::random_device{}());
     static std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
 
-    // Generowanie losowego kierunku w pó³kuli za pomoc¹ równomiernego rozk³adu punktów na sferze
+    // Generowanie losowego kierunku w pï¿½kuli za pomocï¿½ rï¿½wnomiernego rozkï¿½adu punktï¿½w na sferze
     float u1 = distribution(generator);
     float u2 = distribution(generator);
 
-    float r = sqrt(1.0f - u1 * u1); // promieñ ko³a w pó³kuli
-    float phi = 2 * M_PI * u2; // k¹t fi w zakresie [0, 2*PI]
+    float r = sqrt(1.0f - u1 * u1); // promieï¿½ koï¿½a w pï¿½kuli
+    float phi = 2 * M_PI * u2; // kï¿½t fi w zakresie [0, 2*PI]
 
-    // Konwersja wspó³rzêdnych sferycznych na kartezjañskie
+    // Konwersja wspï¿½rzï¿½dnych sferycznych na kartezjaï¿½skie
     float x = r * cos(phi);
     float y = r * sin(phi);
     float z = u1;
@@ -122,7 +122,7 @@ Vector getRandomDirectionHemisphere(Vector& normal) {
     tangent = (tangent - normal * normal.dotProduct(tangent)).Normalize();
     bitangent = normal.cross(tangent).Normalize();
 
-    // Wygenerowanie losowego wektora w lokalnym uk³adzie wspó³rzêdnych
+    // Wygenerowanie losowego wektora w lokalnym ukï¿½adzie wspï¿½rzï¿½dnych
     return (tangent * x + bitangent * y + normal * z).Normalize();
 }
 
@@ -132,7 +132,7 @@ Vector getColour(std::shared_ptr<Scene> scene, Ray ray, int depth) {
         return Vector(0, 0, 0);
     }
 
-    Vector color = { 0, 0, 0 };
+    Vector directLight = { 0, 0, 0 };
 
     std::shared_ptr<Object> closestObject;
     int nr = -1;
@@ -140,31 +140,36 @@ Vector getColour(std::shared_ptr<Scene> scene, Ray ray, int depth) {
     scene->reflectionNumber = 2;
     IntersectObjects(scene, ray, closestObject, nr, nr2);
 
+    Vector finalColor = Vector(0, 0, 0);
+
     if (closestObject != nullptr) { 
 
         Vector colorMaterial = closestObject->GetMaterial().GetColour();
         Vector intersectionPoint = closestObject->GetIntersectionPoint();
         Vector normal = closestObject->GetIntersectionNormal();
 
-        int numRays = 32;
-        Vector indirectLighting = Vector(0, 0, 0);
+        directLight = scene->Light(closestObject->GetIntersectionPoint(), closestObject, ray.Direction.Normalize(), nr);
 
+        int numRays = 1;
+        Vector indirectLighting = Vector(0, 0, 0);
+            
         for (int i = 0; i < numRays; ++i) {
             Vector randomDirection = getRandomDirectionHemisphere(normal);
             Ray indirectRay(intersectionPoint, randomDirection);
-            indirectLighting = indirectLighting + getColour(scene, indirectRay, depth - 1); 
+            indirectLighting = indirectLighting + getColour(scene, indirectRay, depth - 1);
         }
 
         indirectLighting = indirectLighting / numRays;
-
-        color = color + scene->Light(closestObject->GetIntersectionPoint(), closestObject, ray.Direction.Normalize(), nr);
+            
+        Vector finalLight = (indirectLighting + directLight);
+        //Vector finalLight = (directLight);
+            
+            
+        finalColor.x = finalLight.x * colorMaterial.x / 1.4;
+        finalColor.y = finalLight.y * colorMaterial.y / 1.4;
+        finalColor.z = finalLight.z * colorMaterial.z / 1.4;
        
-        color.x = color.x * colorMaterial.x;
-        color.y = color.y * colorMaterial.y;
-        color.z = color.z * colorMaterial.z;
-
-        Vector finalColor = (indirectLighting + color);
-
+        
         return finalColor;
 
     }
@@ -267,14 +272,16 @@ int main(int argv, char** args) {
 
     //make objects
     //dont know why but to move sphere up in orthographic camera you have to put -1 intead of 1
-    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(-0.5f, -3.0f, -11.5), 1.0f, Material(Vector(0.8f, 0.8f, 0.8f), 128, 5, 0, 0));
+    std::shared_ptr<Sphere> sphere1 = std::make_shared<Sphere>(Vector(0.5f, -3.0f, -11.5), 1.0f, Material(Vector(0.8f, 0.8f, 0.8f), 128, 5, 2, 0));
     std::shared_ptr<Sphere> sphere2 = std::make_shared<Sphere>(Vector(0, 0.75f, -1), 0.3, Material(Vector(1.0f, 1.0f, 1.0f), 128, 1, 0, 0));
     std::shared_ptr<Sphere> sphere3 = std::make_shared<Sphere>(Vector(1.5f, -3.0f, -12.5), 1.0, Material(Vector(0.1f, 0.5f, 0.5f), 100, 1, 0, 1.05f));
-    std::shared_ptr<Sphere> sphere4 = std::make_shared<Sphere>(Vector(1.5f, -3.0f, -8.5), 1.0f, Material(Vector(1.f, 1.f, 1.f), 128, 1, 0, 0.f));
+    std::shared_ptr<Sphere> sphere4 = std::make_shared<Sphere>(Vector(2.f, -3.0f, -8.5), 1.0f, Material(Vector(1.f, 1.f, 1.f), 128, 1, 0, 1.2f));
+    std::shared_ptr<Sphere> sphere5 = std::make_shared<Sphere>(Vector(-1.8f, -2.5f, -12.5), 1.3f, Material(Vector(1.f, 1.f, 1.f), 0, 0, 0, 0.f));
+    std::shared_ptr<Sphere> sphere6 = std::make_shared<Sphere>(Vector(2.f, -2.5f, -8.5), 1.3f, Material(Vector(1.f, 1.f, 1.f), 0, 0, 0, 0.f));
     std::shared_ptr<Plane> plane = std::make_shared<Plane>(Vector(0, -2, 0), Vector(0, 1, 0), Material(Vector(1.f, 1.f, 1.f)));
 
-    std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(4, 0, 0), Vector(-1, 0, 0), Material(Vector(0.0f, 0.0f, 1.0f), 128, 1, 0, 0)); //blue
-    std::shared_ptr<Plane> P2 = std::make_shared<Plane>(Vector(-4, 0, 0), Vector(1, 0, 0), Material(Vector(1.0f, 0.0f, 0.0f), 128, 1, 0, 0)); //red
+    std::shared_ptr<Plane> P1 = std::make_shared<Plane>(Vector(4, 0, 0), Vector(-1, 0, 0), Material(Vector(0.0f, 0.0f, 0.9f), 128, 1, 0, 0)); //blue
+    std::shared_ptr<Plane> P2 = std::make_shared<Plane>(Vector(-4, 0, 0), Vector(1, 0, 0), Material(Vector(0.9f, 0.0f, 0.0f), 128, 1, 0, 0)); //red
     std::shared_ptr<Plane> P3 = std::make_shared<Plane>(Vector(0, 4, 0), Vector(0, -1, 0), Material(Vector(0.9f, 0.9f, 0.9f), 128, 1, 0, 0)); //black
     std::shared_ptr<Plane> P4 = std::make_shared<Plane>(Vector(0, -4, 0), Vector(0, 1, 0), Material(Vector(0.9, 0.9f, 0.9f), 128, 1, 0, 0)); //turkusowy
     std::shared_ptr<Plane> P5 = std::make_shared<Plane>(Vector(0, 0, 16), Vector(0, 0, -1), Material(Vector(0.9f, 0.9f, 0.9f), 128, 1, 0, 0)); //fiolet
@@ -285,10 +292,12 @@ int main(int argv, char** args) {
 
     //std::shared_ptr<Plane> plane1 = std::make_shared<Plane>(Vector(-1, 0, 0), Vector(0,0,1), Material(Vector(0.1f, 0.1f, 0.1f)));
 
-    scene->objects.push_back(sphere1);
+    //scene->objects.push_back(sphere1);
     //scene->objects.push_back(sphere2);
     //scene->objects.push_back(sphere3);
-    scene->objects.push_back(sphere4);
+    //scene->objects.push_back(sphere4);
+    scene->objects.push_back(sphere5);
+    scene->objects.push_back(sphere6);
 
     scene->objects.push_back(P1);
     scene->objects.push_back(P2);
@@ -305,7 +314,6 @@ int main(int argv, char** args) {
         0.05f,
         0.00001f
     );
-
 
     //scene->lights.push_back(spotLight);
     scene->lights.push_back(spotLight);
